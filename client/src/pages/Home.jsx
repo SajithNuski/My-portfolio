@@ -1,4 +1,5 @@
 import React from "react";
+import AnimatedCodeBackground from "../components/AnimatedCodeBackground.jsx";
 import Navbar from "../components/Navbar.jsx";
 import Welcome from "../components/Welcome.jsx";
 import About from "../components/About.jsx";
@@ -12,9 +13,10 @@ import Footer from "../components/Footer.jsx";
 
 export default function Home() {
   return (
-    <div className="bg-transparent text-text-primary">
+    <div className="relative bg-transparent text-text-primary">
+      <AnimatedCodeBackground />
       <Navbar />
-      <main>
+      <main className="relative z-10">
         <Welcome />
         <Hero />
         <About />

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowDown } from "lucide-react";
+import { ArrowDown, Download } from "lucide-react";
 
 export default function Welcome() {
   const [showContent, setShowContent] = useState(false);
@@ -73,14 +73,35 @@ export default function Welcome() {
         </motion.p>
 
         {/* CTA Button */}
-        <motion.div variants={itemVariants}>
+        <motion.div
+          variants={itemVariants}
+          className="flex flex-col sm:flex-row items-center justify-center gap-4"
+        >
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="px-8 py-4 bg-accent text-canvas font-bold rounded-lg hover:bg-accent-hover transition text-lg shadow-lg shadow-accent/20"
+            className="px-8 py-4 bg-accent text-canvas font-bold rounded-xl hover:bg-accent-hover transition text-lg shadow-lg shadow-accent/20"
           >
             Explore My Work
           </motion.button>
+
+          <motion.a
+            href="/resume.pdf"
+            download
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.96 }}
+            className="group inline-flex items-center gap-3 px-8 py-4 rounded-xl border border-white/10 bg-overlay/40 backdrop-blur-lg text-text-primary font-semibold shadow-lg shadow-black/10 hover:border-accent/50 transition"
+          >
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/15 text-accent group-hover:bg-accent group-hover:text-canvas transition-colors">
+              <Download size={18} />
+            </span>
+            <span className="flex flex-col items-start leading-none">
+              <span className="text-sm uppercase tracking-[0.2em] text-text-secondary">
+                Resume
+              </span>
+              <span className="text-base">Download CV</span>
+            </span>
+          </motion.a>
         </motion.div>
 
         {/* Scroll Indicator */}
