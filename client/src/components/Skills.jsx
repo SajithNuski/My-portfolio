@@ -125,17 +125,13 @@ export default function Skills() {
                     {skillGroup.skills?.map((skill, idx) => (
                       <li
                         key={idx}
-                        className={`text-sm flex items-center gap-3 ${
-                          skill.primary
-                            ? "text-text-primary font-semibold"
-                            : "text-text-secondary"
-                        }`}
+                        className="text-base font-bold flex items-center gap-3 text-text-primary"
                       >
                         {getSkillLogo(skill.name) && (
                           <img
                             src={getSkillLogo(skill.name)}
                             alt={skill.name}
-                            className="w-5 h-5 object-contain flex-shrink-0"
+                            className="w-8 h-8 object-contain flex-shrink-0"
                           />
                         )}
                         {skill.name}

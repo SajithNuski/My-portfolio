@@ -8,6 +8,7 @@ import profileImg from "../assets/nuski.png";
 export default function Hero() {
   const [hero, setHero] = useState(null);
   const [loading, setLoading] = useState(true);
+  const fiverrLogo = "https://cdn.simpleicons.org/fiverr/1DBF73";
 
   useEffect(() => {
     fetchHero()
@@ -55,19 +56,43 @@ export default function Hero() {
               {hero.description}
             </p>
 
-            {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-2 gap-4 mb-12">
-              {hero.stats?.map((stat, idx) => (
-                <div key={idx} className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-blue/10 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="relative bg-overlay/40 backdrop-blur-lg border border-white/10 rounded-lg p-4 hover:border-accent/50 transition group-hover:scale-105">
-                    <p className="text-text-secondary text-sm">{stat.label}</p>
-                    <p className="text-xl font-bold text-accent mt-2">
-                      {stat.value}
+            {/* Fiverr Highlight Card */}
+            <div className="relative group mb-12">
+              <div className="absolute inset-0 bg-gradient-to-br from-accent/15 to-blue/10 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative bg-overlay/40 backdrop-blur-lg border border-white/10 rounded-2xl p-6 hover:border-accent/50 transition group-hover:scale-[1.01]">
+                <div className="flex items-center gap-4 mb-5">
+                  <div className="w-20 h-20 rounded-2xl bg-canvas/70 border border-white/10 flex items-center justify-center shadow-lg">
+                    <img
+                      src={fiverrLogo}
+                      alt="Fiverr logo"
+                      className="w-14 h-14 object-contain"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-text-secondary text-sm uppercase tracking-[0.2em]">
+                      Fiverr Seller
                     </p>
+                    <h3 className="text-2xl font-bold text-text-primary">
+                      Level 2 Seller
+                    </h3>
                   </div>
                 </div>
-              ))}
+
+                <div className="rounded-xl border border-white/10 bg-canvas/30 p-4">
+                  <div className="flex flex-wrap items-center gap-6">
+                    {hero.stats?.map((stat, idx) => (
+                      <div key={idx} className="min-w-[140px]">
+                        <p className="text-text-secondary text-sm">
+                          {stat.label}
+                        </p>
+                        <p className="text-xl font-bold text-accent mt-2">
+                          {stat.value}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* CTA Buttons */}
