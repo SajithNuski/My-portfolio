@@ -40,3 +40,13 @@ export const deleteCertificate = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const uploadCertificateImageFile = (req, res) => {
+  if (!req.file) {
+    res.status(400).json({ message: "No image file uploaded" });
+    return;
+  }
+
+  const imageUrl = `${req.protocol}://${req.get("host")}/uploads/certificates/${req.file.filename}`;
+  res.status(201).json({ imageUrl });
+};

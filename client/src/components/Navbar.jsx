@@ -8,6 +8,11 @@ export default function Navbar() {
     rest: { y: 0 },
     hover: { y: -2 },
   };
+  const githubProfileLink = "https://github.com/SajithNuski";
+  const linkedinProfileLink =
+    "https://www.linkedin.com/in/sajith-nuski?utm_source=share_via&utm_content=profile&utm_medium=member_android";
+  const emailComposeLink =
+    "https://mail.google.com/mail/?view=cm&fs=1&to=sajithnuski878@gmail.com";
 
   const underlineVariants = {
     rest: { scaleX: 0, opacity: 0 },
@@ -52,17 +57,15 @@ export default function Navbar() {
         {/* Social Icons */}
         <div className="flex gap-4">
           {[
-            { href: "https://github.com", Icon: Github },
-            { href: "https://linkedin.com", Icon: Linkedin },
-            { href: "mailto:sajith@example.com", Icon: Mail },
+            { href: githubProfileLink, Icon: Github },
+            { href: linkedinProfileLink, Icon: Linkedin },
+            { href: emailComposeLink, Icon: Mail },
           ].map(({ href, Icon }) => (
             <motion.a
               key={href}
               href={href}
-              target={href.startsWith("mailto:") ? undefined : "_blank"}
-              rel={
-                href.startsWith("mailto:") ? undefined : "noopener noreferrer"
-              }
+              target="_blank"
+              rel="noopener noreferrer"
               whileHover={{ y: -3, scale: 1.12, rotate: -6 }}
               whileTap={{ scale: 0.95 }}
               className="text-text-secondary hover:text-accent transition-colors"

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -39,22 +39,35 @@ export default function AdminDashboard() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Dashboard Cards */}
           {[
-            { title: "Edit Hero", icon: "🎯" },
-            { title: "Manage Projects", icon: "📁" },
-            { title: "Update Skills", icon: "🛠️" },
-            { title: "Edit Experience", icon: "💼" },
-            { title: "Manage Certificates", icon: "🏆" },
-            { title: "View Messages", icon: "💬" },
+            { title: "Edit Hero", icon: "🎯", href: "/admin/manage/hero" },
+            {
+              title: "Manage Projects",
+              icon: "📁",
+              href: "/admin/manage/projects",
+            },
+            { title: "Update Skills", icon: "🛠️", href: "/admin/manage/skills" },
+            {
+              title: "Edit Experience",
+              icon: "💼",
+              href: "/admin/manage/experience",
+            },
+            {
+              title: "Manage Certificates",
+              icon: "🏆",
+              href: "/admin/manage/certificates",
+            },
+            { title: "View Messages", icon: "💬", href: "/admin/manage/messages" },
           ].map((item, idx) => (
-            <div
+            <Link
               key={idx}
-              className="bg-overlay border border-border rounded-lg p-6 hover:border-accent transition cursor-pointer text-center"
+              to={item.href}
+              className="bg-overlay border border-border rounded-lg p-6 hover:border-accent transition cursor-pointer text-center block"
             >
               <p className="text-4xl mb-3">{item.icon}</p>
               <h3 className="text-lg font-bold text-text-primary">
                 {item.title}
               </h3>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

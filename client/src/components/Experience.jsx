@@ -37,7 +37,16 @@ export default function Experience() {
               <div key={exp._id} className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-blue/10 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="relative bg-overlay/40 backdrop-blur-lg border border-white/10 rounded-lg p-6 hover:border-accent/50 transition group-hover:scale-105">
-                  <div className="flex items-start gap-4">
+                  {/* Mac-style traffic light buttons in the top-left corner */}
+                  <div
+                    className="absolute top-3 left-3 flex items-center gap-2 z-10"
+                    aria-hidden
+                  >
+                    <span className="w-3 h-3 rounded-full bg-red-500 border border-black/10 shadow-sm" />
+                    <span className="w-3 h-3 rounded-full bg-yellow-400 border border-black/10 shadow-sm" />
+                    <span className="w-3 h-3 rounded-full bg-green-400 border border-black/10 shadow-sm" />
+                  </div>
+                  <div className="flex items-start gap-4 pl-8 pt-2">
                     <Briefcase className="text-accent mt-1" size={24} />
                     <div className="flex-1">
                       <h3 className="text-xl font-bold text-text-primary">

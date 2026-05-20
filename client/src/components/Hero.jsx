@@ -9,6 +9,12 @@ export default function Hero() {
   const [hero, setHero] = useState(null);
   const [loading, setLoading] = useState(true);
   const fiverrLogo = "https://cdn.simpleicons.org/fiverr/1DBF73";
+  const viewWorkLink = "https://www.fiverr.com/s/gD055xE";
+  const githubProfileLink = "https://github.com/SajithNuski";
+  const linkedinProfileLink =
+    "https://www.linkedin.com/in/sajith-nuski?utm_source=share_via&utm_content=profile&utm_medium=member_android";
+  const emailComposeLink =
+    "https://mail.google.com/mail/?view=cm&fs=1&to=sajithnuski878@gmail.com";
 
   useEffect(() => {
     fetchHero()
@@ -97,7 +103,13 @@ export default function Hero() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col md:flex-row gap-4 mb-12">
-              <button className="px-8 py-3 bg-accent text-canvas font-bold rounded-lg hover:bg-accent-hover transition flex items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() =>
+                  window.open(viewWorkLink, "_blank", "noopener,noreferrer")
+                }
+                className="px-8 py-3 bg-accent text-canvas font-bold rounded-lg hover:bg-accent-hover transition flex items-center justify-center gap-2"
+              >
                 {hero.ctaPrimaryText} <ArrowRight size={18} />
               </button>
               <button className="px-8 py-3 bg-overlay/40 backdrop-blur-lg border border-white/10 text-accent font-bold rounded-lg hover:border-accent/50 transition">
@@ -107,34 +119,30 @@ export default function Hero() {
 
             {/* Social Links */}
             <div className="flex gap-6">
-              {hero.socialLinks?.github && (
-                <a
-                  href={hero.socialLinks.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-text-secondary hover:text-accent transition"
-                >
-                  <Github size={24} />
-                </a>
-              )}
-              {hero.socialLinks?.linkedin && (
-                <a
-                  href={hero.socialLinks.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-text-secondary hover:text-accent transition"
-                >
-                  <Linkedin size={24} />
-                </a>
-              )}
-              {hero.socialLinks?.email && (
-                <a
-                  href={`mailto:${hero.socialLinks.email}`}
-                  className="text-text-secondary hover:text-accent transition"
-                >
-                  <Mail size={24} />
-                </a>
-              )}
+              <a
+                href={githubProfileLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-text-secondary hover:text-accent transition"
+              >
+                <Github size={24} />
+              </a>
+              <a
+                href={linkedinProfileLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-text-secondary hover:text-accent transition"
+              >
+                <Linkedin size={24} />
+              </a>
+              <a
+                href={emailComposeLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-text-secondary hover:text-accent transition"
+              >
+                <Mail size={24} />
+              </a>
             </div>
           </div>
 

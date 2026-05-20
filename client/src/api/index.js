@@ -51,6 +51,25 @@ export const createCertificate = (data) => api.post("/certificates", data);
 export const updateCertificate = (id, data) =>
   api.put(`/certificates/${id}`, data);
 export const deleteCertificate = (id) => api.delete(`/certificates/${id}`);
+export const uploadCertificateImage = (file) => {
+  const formData = new FormData();
+  formData.append("image", file);
+  return api.post("/certificates/upload-image", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
+export const uploadProjectImage = (file) => {
+  const formData = new FormData();
+  formData.append("image", file);
+  return api.post("/projects/upload-image", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
 
 export const getMessages = () => api.get("/contact");
 export const markMessageRead = (id) => api.put(`/contact/${id}/read`);

@@ -165,13 +165,13 @@ export default function About() {
           </motion.div>
         </motion.div>
 
-        {/* Features Grid with Glass Effect */}
+        {/* Modern Diamond Cards */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid md:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="grid md:grid-cols-2 lg:grid-cols-4 gap-4"
         >
           {features.map((feature, idx) => {
             const Icon = feature.icon;
@@ -179,22 +179,58 @@ export default function About() {
               <motion.div
                 key={idx}
                 variants={itemVariants}
-                whileHover={{ y: -5 }}
-                className="group relative"
+                whileHover={{ scale: 1.05, rotate: 2 }}
+                className="group relative h-48"
               >
-                {/* Glow background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-blue/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                {/* Diamond shape background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/20 via-overlay/40 to-blue/20 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
 
-                {/* Glass card */}
-                <div className="relative bg-overlay/30 backdrop-blur-lg border border-white/10 rounded-xl p-6 hover:border-accent/50 transition h-full">
-                  <Icon className="text-accent mb-4" size={32} />
-                  <h3 className="text-lg font-bold text-text-primary mb-2">
-                    {feature.title}
-                  </h3>
-                  <p className="text-text-secondary text-sm">
-                    {feature.description}
-                  </p>
-                </div>
+                {/* Main diamond card - rotated container */}
+                <motion.div
+                  className="relative w-full h-full perspective"
+                  whileHover={{ rotateY: 5 }}
+                  transition={{ duration: 0.6 }}
+                >
+                  {/* Diamond content */}
+                  <div
+                    className="relative bg-gradient-to-br from-overlay/50 via-canvas/40 to-overlay/50 backdrop-blur-xl border border-accent/40 hover:border-accent/80 rounded-2xl p-4 h-full flex flex-col items-center justify-center text-center group-hover:shadow-xl transition-all duration-300"
+                    style={{
+                      boxShadow: "0 0 15px rgba(29, 191, 115, 0.08)",
+                    }}
+                  >
+                    {/* Icon container with glow */}
+                    <motion.div
+                      whileHover={{ scale: 1.2, rotate: 10 }}
+                      className="mb-3 relative"
+                    >
+                      <div className="absolute inset-0 bg-accent/30 blur-lg rounded-full w-12 h-12 -z-10"></div>
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent/40 to-accent/10 border border-accent/60 flex items-center justify-center group-hover:shadow-lg transition">
+                        <Icon
+                          className="text-accent group-hover:text-white transition"
+                          size={24}
+                        />
+                      </div>
+                    </motion.div>
+
+                    {/* Title */}
+                    <h3 className="text-sm font-bold text-text-primary mb-1 group-hover:text-accent transition">
+                      {feature.title}
+                    </h3>
+
+                    {/* Description */}
+                    <p className="text-text-secondary text-xs leading-tight group-hover:text-text-primary transition line-clamp-2">
+                      {feature.description}
+                    </p>
+
+                    {/* Bottom accent line */}
+                    <motion.div
+                      initial={{ scaleX: 0 }}
+                      whileInView={{ scaleX: 1 }}
+                      transition={{ duration: 0.8, delay: idx * 0.1 }}
+                      className="absolute bottom-0 left-1/2 -translate-x-1/2 h-1 w-12 bg-gradient-to-r from-transparent via-accent to-transparent rounded-full mt-6"
+                    />
+                  </div>
+                </motion.div>
               </motion.div>
             );
           })}

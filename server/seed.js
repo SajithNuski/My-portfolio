@@ -155,34 +155,45 @@ const seedDB = async () => {
     // Seed Certificates
     const certificates = [
       {
+        name: "MS Club Membership Certificate",
+        issuer: "MS Club · Uva Wellassa University",
+        description:
+          "Membership certificate awarded for active participation in MS Club activities and innovation initiatives.",
+        icon: "🎓",
+        imageAlt: "MS Club membership certificate for Mohamed Sajith Nuski",
+        pdfUrl: "",
+        credentialUrl: "",
+        order: 1,
+      },
+      {
         name: "Web Design for Beginners",
         issuer: "University of Moratuwa",
         icon: "🎓",
-        order: 1,
+        order: 2,
       },
       {
         name: "Web Development",
         issuer: "University of Leeds",
         icon: "🎓",
-        order: 2,
+        order: 3,
       },
       {
         name: "Mastering the GitHub Student Developer Pack",
         issuer: "Microsoft Student Ambassadors · Imagine Cup",
         icon: "🎓",
-        order: 3,
+        order: 4,
       },
       {
         name: "Python Development & Programming Fundamentals",
         issuer: "Udemy",
         icon: "🎓",
-        order: 4,
+        order: 5,
       },
       {
         name: "Fundamentals of Digital Marketing",
         issuer: "Google",
         icon: "🎓",
-        order: 5,
+        order: 6,
       },
     ];
     await Certificate.insertMany(certificates);

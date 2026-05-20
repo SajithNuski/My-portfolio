@@ -4,6 +4,8 @@ import { AuthProvider } from "./context/AuthContext";
 import Home from "./pages/Home.jsx";
 import AdminLogin from "./pages/admin/AdminLogin.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
+import AdminSectionManager from "./pages/admin/AdminSectionManager.jsx";
+import ProjectDetails from "./pages/ProjectDetails.jsx";
 
 function App() {
   return (
@@ -13,8 +15,10 @@ function App() {
           <div className="relative z-10">
             <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/projects/:id" element={<ProjectDetails />} />
               <Route path="/admin" element={<AdminLogin />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/manage/:section" element={<AdminSectionManager />} />
             </Routes>
           </div>
         </div>

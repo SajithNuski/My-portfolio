@@ -2,7 +2,14 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { fetchCertificates } from "../api/index.js";
-import { Award } from "lucide-react";
+import { Award, FileText } from "lucide-react";
+
+const certificateFallbackImage =
+  "https://via.placeholder.com/1200x800?text=Certificate+Image";
+const membershipCertificateImage = new URL(
+  "../assets/Certificate (7).png",
+  import.meta.url,
+).href;
 
 export default function Certificates() {
   const [certificates, setCertificates] = useState([]);
@@ -33,31 +40,94 @@ export default function Certificates() {
           </p>
         ) : (
           <div className="grid md:grid-cols-2 gap-6">
-            {certificates.map((cert) => (
-              <div key={cert._id} className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-blue/10 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <a
-                  href={cert.credentialUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="relative bg-overlay/40 backdrop-blur-lg border border-white/10 rounded-lg p-6 hover:border-accent/50 transition flex items-start gap-4 hover:scale-105"
-                >
-                  <Award
-                    className="text-accent flex-shrink-0 group-hover:scale-110 transition"
-                    size={28}
-                  />
-                  <div>
-                    <h3 className="text-lg font-bold text-text-primary">
-                      {cert.name}
-                    </h3>
-                    <p className="text-text-secondary text-sm">{cert.issuer}</p>
-                    <p className="text-accent text-xs font-mono mt-2">
-                      View credential →
-                    </p>
+            {certificates.map((cert) => {
+              const CardTag = cert.credentialUrl ? motion.a : motion.div;
+              const cardProps = cert.credentialUrl
+                ? {
+                    href: cert.credentialUrl,
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                  }
+                : {};
+              const isMembershipCertificate =
+                [cert.name, cert.issuer, cert.description]
+                  .filter(Boolean)
+                  .join(" ")
+                  .toLowerCase()
+                  .includes("ms club membership");
+              const certificateImage =
+                cert.imageUrl ||
+                (isMembershipCertificate
+                  ? membershipCertificateImage
+                  : certificateFallbackImage);
+
+              return (
+              <CardTag
+                key={cert._id}
+                {...cardProps}
+                whileHover={cert.credentialUrl ? { y: -4, scale: 1.01 } : undefined}
+                transition={cert.credentialUrl ? { duration: 0.25 } : undefined}
+                className="relative group overflow-hidden rounded-2xl border border-white/10 bg-overlay/40 backdrop-blur-lg hover:border-accent/50 transition"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-blue/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                <div className="relative">
+                  <div className="aspect-[4/3] bg-canvas/40 overflow-hidden">
+                    <img
+                      src={certificateImage}
+                      alt={cert.imageAlt || cert.name}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
                   </div>
-                </a>
-              </div>
-            ))}
+
+                  <div className="p-5 flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center flex-shrink-0">
+                      <Award className="text-accent" size={24} />
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-lg font-bold text-text-primary mb-1">
+                        {cert.name}
+                      </h3>
+                      <p className="text-text-secondary text-sm mb-2">
+                        {cert.issuer}
+                      </p>
+                      {cert.description && (
+                        <p className="text-text-secondary text-sm mb-3">
+                          {cert.description}
+                        </p>
+                      )}
+                      <div className="flex flex-wrap items-center gap-3">
+                        <p className="text-accent text-xs font-mono">
+                          View credential →
+                        </p>
+
+                        {cert.pdfUrl && (
+                          <span className="inline-flex items-center gap-1 rounded-full border border-accent/20 bg-accent/10 px-2 py-1 text-[11px] font-semibold text-accent">
+                            <FileText size={12} /> PDF available
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {cert.pdfUrl && (
+                    <div className="px-5 pb-5">
+                      <a
+                        href={cert.pdfUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-canvas/40 px-4 py-2 text-sm font-medium text-text-primary transition hover:border-accent/50 hover:text-accent"
+                      >
+                        <FileText size={16} /> Open PDF
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </CardTag>
+              );
+            })}
           </div>
         )}
 

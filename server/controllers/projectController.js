@@ -38,3 +38,13 @@ export const deleteProject = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const uploadProjectImageFile = (req, res) => {
+  if (!req.file) {
+    res.status(400).json({ message: "No image file uploaded" });
+    return;
+  }
+
+  const imageUrl = `${req.protocol}://${req.get("host")}/uploads/projects/${req.file.filename}`;
+  res.status(201).json({ imageUrl });
+};

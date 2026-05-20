@@ -1,6 +1,9 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import { connectDB } from "./config/db.js";
 import heroRoutes from "./routes/heroRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
@@ -11,6 +14,9 @@ import contactRoutes from "./routes/contactRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -23,6 +29,12 @@ app.use(
   }),
 );
 app.use(express.json());
+
+const uploadsDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+app.use("/uploads", express.static(uploadsDir));
 
 // Connect to MongoDB
 connectDB();
