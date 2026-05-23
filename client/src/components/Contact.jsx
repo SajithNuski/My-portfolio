@@ -32,7 +32,7 @@ export default function Contact() {
 
   return (
     <section id="contact" className="py-20 bg-transparent">
-      <div className="max-w-2xl mx-auto px-6">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-4xl md:text-5xl font-bold font-head text-text-primary mb-12 text-center">
           Get In Touch
         </h2>

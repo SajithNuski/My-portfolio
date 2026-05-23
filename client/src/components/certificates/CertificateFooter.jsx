@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function CertificateFooter({ certificate, accent }) {
+export default function CertificateFooter({ certificate }) {
   const skills = Array.isArray(certificate.skills) ? certificate.skills : [];
   const visibleSkills = skills.slice(0, 3);
   const hiddenCount = Math.max(0, skills.length - visibleSkills.length);

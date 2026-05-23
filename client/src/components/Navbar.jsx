@@ -21,7 +21,7 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-0 w-full bg-overlay/30 backdrop-blur-xl border-b border-white/10 z-50 hover:border-accent/30 transition">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
         {/* Logo */}
         <Link to="/" className="text-2xl font-bold font-head text-accent">
           Sajith

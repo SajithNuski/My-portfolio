@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ExternalLink, Star, X } from "lucide-react";
 import { fetchProjects } from "../api/index.js";
+import ImageLightbox from "./ImageLightbox.jsx";
 import styles from "./Projects.module.css";
 
 const accentColors = {
@@ -21,6 +22,7 @@ export default function Projects() {
   const [projects, setProjects] = useState([]);
   const [activeModal, setActiveModal] = useState(null);
   const [modalClosing, setModalClosing] = useState(false);
+  const [lightboxProject, setLightboxProject] = useState(null);
   const [particles, setParticles] = useState([]);
   const particleTimeoutsRef = useRef([]);
   const modalTimeoutRef = useRef(null);
@@ -254,8 +256,27 @@ export default function Projects() {
                   </ul>
 
                   <footer className={styles.cardFooter}>
-                    <button type="button" className={styles.detailsButton}>
-                      View Details
+                    <button
+                      type="button"
+                      className={styles.detailsButton}
+                      onClick={(event) => {
+                        event.stopPropagation();
+
+                        if (project.thumbnail) {
+                          setLightboxProject(project);
+                          return;
+                        }
+
+                        if (project.liveUrl) {
+                          window.open(
+                            project.liveUrl,
+                            "_blank",
+                            "noopener,noreferrer",
+                          );
+                        }
+                      }}
+                    >
+                      View Project
                     </button>
                     <span className={styles.starCount}>
                       <Star size={14} /> {project.stars}
@@ -391,6 +412,16 @@ export default function Projects() {
           </div>
         </div>
       ) : null}
+
+      <ImageLightbox
+        isOpen={Boolean(lightboxProject)}
+        onClose={() => setLightboxProject(null)}
+        image={lightboxProject?.thumbnail || ""}
+        title={lightboxProject?.title || "Project preview"}
+        issuer={lightboxProject?.category || "Project"}
+        accent={lightboxProject?.accent || "green"}
+        externalUrl={lightboxProject?.liveUrl || ""}
+      />
     </section>
   );
 }
