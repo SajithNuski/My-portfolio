@@ -21,7 +21,6 @@ import {
   getMessages,
   markMessageRead,
   updateCertificate,
-  uploadCertificateImage,
   updateExperience,
   updateHero,
   updateProject,
@@ -30,6 +29,7 @@ import {
   deleteExperience,
   deleteProject,
   deleteSkill,
+  uploadCertificateImage,
   uploadProjectImage,
 } from "../../api/index.js";
 
@@ -69,10 +69,16 @@ const sectionConfig = {
     template: {
       title: "",
       description: "",
+      longDescription: "",
+      type: "Website",
+      platform: "",
+      country: "",
       bullets: [""],
       techStack: [""],
       githubUrl: "",
       liveUrl: "",
+      imageUrl: "",
+      imageAlt: "",
       featured: false,
       order: 0,
     },
@@ -120,13 +126,22 @@ const sectionConfig = {
     remover: deleteCertificate,
     template: {
       name: "",
+      title: "",
       issuer: "",
+      issuerLogo: "",
       description: "",
       icon: "",
       imageUrl: "",
+      image: "",
       imageAlt: "",
       pdfUrl: "",
       credentialUrl: "",
+      certificateUrl: "",
+      credentialId: "",
+      completedDate: "",
+      skills: [],
+      verified: false,
+      accent: "green",
       order: 0,
     },
   },
@@ -259,7 +274,7 @@ export default function AdminSectionManager() {
         setProjectForm(item);
       }
     }
-  }, [config?.type, items, selectedId, isCertificateSection]);
+  }, [config?.type, items, selectedId, isCertificateSection, isProjectSection]);
 
   const handleSelectItem = (item) => {
     setSelectedId(item._id);
@@ -356,8 +371,8 @@ export default function AdminSectionManager() {
       const payload = isCertificateSection
         ? certificateForm
         : isProjectSection
-        ? projectForm
-        : parseEditorText(editorText);
+          ? projectForm
+          : parseEditorText(editorText);
 
       if (config.type === "single") {
         const response = await config.updater(payload);
@@ -503,23 +518,27 @@ export default function AdminSectionManager() {
       setError("Please log in as admin to upload images.");
       return;
     }
+
     setCertificateUploading(true);
     setError("");
-    // show local preview immediately
     const objectUrl = URL.createObjectURL(file);
     setCertificateLocalPreview(objectUrl);
+
     try {
       const res = await uploadCertificateImage(file);
       const imageUrl = res.data.imageUrl;
       setCertificateForm((prev) => ({ ...prev, imageUrl }));
       setNotice("Image uploaded");
-      // clear local preview so the server URL is shown
       setCertificateLocalPreview(null);
     } catch (err) {
-      setError(err.response?.data?.message || "Upload failed");
+      console.error("Certificate upload failed:", err);
+      if (err.response?.status === 401) {
+        setError("Unauthorized — please log in to upload images.");
+      } else {
+        setError(err.response?.data?.message || err.message || "Upload failed");
+      }
     } finally {
       setCertificateUploading(false);
-      // revoke after a short delay to allow preview to display if server returns quickly
       setTimeout(() => URL.revokeObjectURL(objectUrl), 5000);
     }
   };
@@ -539,7 +558,9 @@ export default function AdminSectionManager() {
     return (
       <div className="min-h-screen bg-canvas text-text-primary px-6 py-20">
         <div className="max-w-3xl mx-auto bg-overlay/40 border border-white/10 rounded-2xl p-8">
-          <h1 className="text-3xl font-bold font-head mb-4">Unknown admin section</h1>
+          <h1 className="text-3xl font-bold font-head mb-4">
+            Unknown admin section
+          </h1>
           <p className="text-text-secondary mb-6">
             The section you requested does not exist.
           </p>
@@ -618,8 +639,12 @@ export default function AdminSectionManager() {
                         {message.read ? "Read" : "Unread"}
                       </span>
                     </div>
-                    <p className="text-sm text-text-secondary mb-2">{message.email}</p>
-                    <p className="text-sm mb-3 line-clamp-3">{message.message}</p>
+                    <p className="text-sm text-text-secondary mb-2">
+                      {message.email}
+                    </p>
+                    <p className="text-sm mb-3 line-clamp-3">
+                      {message.message}
+                    </p>
                     {!message.read && (
                       <button
                         onClick={() => handleMarkRead(message._id)}
@@ -631,7 +656,9 @@ export default function AdminSectionManager() {
                   </div>
                 ))}
                 {!items.length && (
-                  <p className="text-sm text-text-secondary">No messages yet.</p>
+                  <p className="text-sm text-text-secondary">
+                    No messages yet.
+                  </p>
                 )}
               </div>
             ) : (
@@ -647,15 +674,25 @@ export default function AdminSectionManager() {
                     }`}
                   >
                     <p className="font-semibold">
-                      {item.name || item.title || item.category || item.role || "Untitled"}
+                      {item.name ||
+                        item.title ||
+                        item.category ||
+                        item.role ||
+                        "Untitled"}
                     </p>
                     <p className="text-xs text-text-secondary mt-1 line-clamp-2">
-                      {item.issuer || item.company || item.description || item.category || ""}
+                      {item.issuer ||
+                        item.company ||
+                        item.description ||
+                        item.category ||
+                        ""}
                     </p>
                   </button>
                 ))}
                 {!items.length && (
-                  <p className="text-sm text-text-secondary">No items yet. Create one to start.</p>
+                  <p className="text-sm text-text-secondary">
+                    No items yet. Create one to start.
+                  </p>
                 )}
               </div>
             )}
@@ -668,7 +705,8 @@ export default function AdminSectionManager() {
               <div>
                 <h2 className="text-xl font-bold">Editor</h2>
                 <p className="text-sm text-text-secondary">
-                  Edit the selected item as JSON. Save to update the live portfolio.
+                  Edit the selected item as JSON. Save to update the live
+                  portfolio.
                 </p>
               </div>
               {selectedItem && config.type === "list" && (
@@ -701,32 +739,117 @@ export default function AdminSectionManager() {
                       type="text"
                       value={certificateForm.name || ""}
                       onChange={(e) =>
-                        setCertificateForm((prev) => ({ ...prev, name: e.target.value }))
+                        setCertificateForm((prev) => ({
+                          ...prev,
+                          name: e.target.value,
+                        }))
                       }
                       className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
                       placeholder="Certificate name"
                     />
                   </label>
                   <label className="space-y-2">
+                    <span className="block text-sm font-semibold">Title</span>
+                    <input
+                      type="text"
+                      value={
+                        certificateForm.title || certificateForm.name || ""
+                      }
+                      onChange={(e) =>
+                        setCertificateForm((prev) => ({
+                          ...prev,
+                          title: e.target.value,
+                        }))
+                      }
+                      className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
+                      placeholder="Display title for the certificate"
+                    />
+                  </label>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <label className="space-y-2">
                     <span className="block text-sm font-semibold">Issuer</span>
                     <input
                       type="text"
                       value={certificateForm.issuer || ""}
                       onChange={(e) =>
-                        setCertificateForm((prev) => ({ ...prev, issuer: e.target.value }))
+                        setCertificateForm((prev) => ({
+                          ...prev,
+                          issuer: e.target.value,
+                        }))
                       }
                       className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
-                      placeholder="Issuer name"
+                      placeholder="Meta, Google, freeCodeCamp..."
+                    />
+                  </label>
+                  <label className="space-y-2">
+                    <span className="block text-sm font-semibold">
+                      Issuer Logo URL
+                    </span>
+                    <input
+                      type="text"
+                      value={certificateForm.issuerLogo || ""}
+                      onChange={(e) =>
+                        setCertificateForm((prev) => ({
+                          ...prev,
+                          issuerLogo: e.target.value,
+                        }))
+                      }
+                      className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
+                      placeholder="https://... or /logos/..."
+                    />
+                  </label>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <label className="space-y-2">
+                    <span className="block text-sm font-semibold">
+                      Completed Date
+                    </span>
+                    <input
+                      type="text"
+                      value={certificateForm.completedDate || ""}
+                      onChange={(e) =>
+                        setCertificateForm((prev) => ({
+                          ...prev,
+                          completedDate: e.target.value,
+                        }))
+                      }
+                      className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
+                      placeholder="Jan 2024"
+                    />
+                  </label>
+                  <label className="space-y-2">
+                    <span className="block text-sm font-semibold">
+                      Credential ID
+                    </span>
+                    <input
+                      type="text"
+                      value={certificateForm.credentialId || ""}
+                      onChange={(e) =>
+                        setCertificateForm((prev) => ({
+                          ...prev,
+                          credentialId: e.target.value,
+                        }))
+                      }
+                      className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
+                      placeholder="ABC-123-XYZ"
                     />
                   </label>
                 </div>
 
                 <label className="space-y-2 block">
-                  <span className="block text-sm font-semibold">Description</span>
+                  <span className="block text-sm font-semibold">
+                    Description
+                  </span>
                   <textarea
                     value={certificateForm.description || ""}
                     onChange={(e) =>
-                      setCertificateForm((prev) => ({ ...prev, description: e.target.value }))
+                      setCertificateForm((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
                     }
                     rows={3}
                     className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
@@ -736,18 +859,67 @@ export default function AdminSectionManager() {
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <label className="space-y-2">
-                    <span className="block text-sm font-semibold">Image URL</span>
+                    <span className="block text-sm font-semibold">Icon</span>
                     <input
                       type="text"
-                      value={certificateForm.imageUrl || ""}
+                      value={certificateForm.icon || ""}
                       onChange={(e) =>
-                        setCertificateForm((prev) => ({ ...prev, imageUrl: e.target.value }))
+                        setCertificateForm((prev) => ({
+                          ...prev,
+                          icon: e.target.value,
+                        }))
+                      }
+                      className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
+                      placeholder="🎓"
+                    />
+                  </label>
+                  <label className="space-y-2">
+                    <span className="block text-sm font-semibold">
+                      Skills (comma separated)
+                    </span>
+                    <input
+                      type="text"
+                      value={(certificateForm.skills || []).join(", ")}
+                      onChange={(e) =>
+                        setCertificateForm((prev) => ({
+                          ...prev,
+                          skills: String(e.target.value || "")
+                            .split(",")
+                            .map((skill) => skill.trim())
+                            .filter(Boolean),
+                        }))
+                      }
+                      className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
+                      placeholder="React, HTML/CSS, UX Design"
+                    />
+                  </label>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <label className="space-y-2">
+                    <span className="block text-sm font-semibold">
+                      Image URL
+                    </span>
+                    <input
+                      type="text"
+                      value={
+                        certificateForm.imageUrl || certificateForm.image || ""
+                      }
+                      onChange={(e) =>
+                        setCertificateForm((prev) => ({
+                          ...prev,
+                          imageUrl: e.target.value,
+                        }))
                       }
                       className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
                       placeholder="/certificates/your-file.png or https://..."
                     />
                     <p className="text-xs text-text-secondary">
-                      For local files, place them in <span className="font-semibold">client/public/certificates</span> and use a path like <span className="font-semibold">/certificates/your-file.png</span>.
+                      For local files, place them in{" "}
+                      <span className="font-semibold">
+                        client/public/certificates
+                      </span>{" "}
+                      or use the upload button.
                     </p>
                     <div className="mt-2 flex items-center gap-3">
                       <input
@@ -755,8 +927,8 @@ export default function AdminSectionManager() {
                         accept="image/*"
                         ref={certificateFileInputRef}
                         onChange={(e) => {
-                          const f = e.target.files?.[0];
-                          if (f) handleCertificateImageUpload(f);
+                          const file = e.target.files?.[0];
+                          if (file) handleCertificateImageUpload(file);
                         }}
                         className="hidden"
                       />
@@ -767,17 +939,26 @@ export default function AdminSectionManager() {
                       >
                         Choose file
                       </button>
-                      {certificateUploading && <span className="text-sm text-text-secondary">Uploading...</span>}
+                      {certificateUploading && (
+                        <span className="text-sm text-text-secondary">
+                          Uploading...
+                        </span>
+                      )}
                     </div>
                   </label>
 
                   <label className="space-y-2">
-                    <span className="block text-sm font-semibold">Image Alt Text</span>
+                    <span className="block text-sm font-semibold">
+                      Image Alt Text
+                    </span>
                     <input
                       type="text"
                       value={certificateForm.imageAlt || ""}
                       onChange={(e) =>
-                        setCertificateForm((prev) => ({ ...prev, imageAlt: e.target.value }))
+                        setCertificateForm((prev) => ({
+                          ...prev,
+                          imageAlt: e.target.value,
+                        }))
                       }
                       className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
                       placeholder="Certificate image description"
@@ -787,43 +968,69 @@ export default function AdminSectionManager() {
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <label className="space-y-2">
-                    <span className="block text-sm font-semibold">PDF URL</span>
+                    <span className="block text-sm font-semibold">
+                      Certificate URL
+                    </span>
                     <input
                       type="text"
-                      value={certificateForm.pdfUrl || ""}
-                      onChange={(e) =>
-                        setCertificateForm((prev) => ({ ...prev, pdfUrl: e.target.value }))
+                      value={
+                        certificateForm.certificateUrl ||
+                        certificateForm.credentialUrl ||
+                        ""
                       }
-                      className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
-                      placeholder="https://... or /certificates/file.pdf"
-                    />
-                  </label>
-                  <label className="space-y-2">
-                    <span className="block text-sm font-semibold">Credential URL</span>
-                    <input
-                      type="text"
-                      value={certificateForm.credentialUrl || ""}
                       onChange={(e) =>
-                        setCertificateForm((prev) => ({ ...prev, credentialUrl: e.target.value }))
+                        setCertificateForm((prev) => ({
+                          ...prev,
+                          certificateUrl: e.target.value,
+                        }))
                       }
                       className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
                       placeholder="https://..."
                     />
                   </label>
+                  <label className="space-y-2">
+                    <span className="block text-sm font-semibold">
+                      Verified
+                    </span>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        checked={!!certificateForm.verified}
+                        onChange={(e) =>
+                          setCertificateForm((prev) => ({
+                            ...prev,
+                            verified: e.target.checked,
+                          }))
+                        }
+                        className="w-5 h-5"
+                      />
+                      <span className="text-text-secondary">
+                        Mark as verified
+                      </span>
+                    </div>
+                  </label>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <label className="space-y-2">
-                    <span className="block text-sm font-semibold">Icon</span>
-                    <input
-                      type="text"
-                      value={certificateForm.icon || ""}
+                    <span className="block text-sm font-semibold">
+                      Accent Color
+                    </span>
+                    <select
+                      value={certificateForm.accent || "green"}
                       onChange={(e) =>
-                        setCertificateForm((prev) => ({ ...prev, icon: e.target.value }))
+                        setCertificateForm((prev) => ({
+                          ...prev,
+                          accent: e.target.value,
+                        }))
                       }
                       className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
-                      placeholder="🎓"
-                    />
+                    >
+                      <option value="green">Green</option>
+                      <option value="blue">Blue</option>
+                      <option value="pink">Pink</option>
+                      <option value="purple">Purple</option>
+                    </select>
                   </label>
                   <label className="space-y-2">
                     <span className="block text-sm font-semibold">Order</span>
@@ -841,24 +1048,80 @@ export default function AdminSectionManager() {
                   </label>
                 </div>
 
+                <div className="grid md:grid-cols-2 gap-4">
+                  <label className="space-y-2">
+                    <span className="block text-sm font-semibold">PDF URL</span>
+                    <input
+                      type="text"
+                      value={certificateForm.pdfUrl || ""}
+                      onChange={(e) =>
+                        setCertificateForm((prev) => ({
+                          ...prev,
+                          pdfUrl: e.target.value,
+                        }))
+                      }
+                      className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
+                      placeholder="https://... or /certificates/file.pdf"
+                    />
+                  </label>
+                  <label className="space-y-2">
+                    <span className="block text-sm font-semibold">
+                      Credential URL
+                    </span>
+                    <input
+                      type="text"
+                      value={certificateForm.credentialUrl || ""}
+                      onChange={(e) =>
+                        setCertificateForm((prev) => ({
+                          ...prev,
+                          credentialUrl: e.target.value,
+                        }))
+                      }
+                      className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
+                      placeholder="https://..."
+                    />
+                  </label>
+                </div>
+
                 <div className="grid md:grid-cols-[180px_1fr] gap-4 items-start">
                   <div className="rounded-2xl border border-white/10 bg-canvas/30 overflow-hidden">
                     <div className="aspect-[4/3] bg-canvas/50">
                       <img
-                        src={certificateLocalPreview || certificateForm.imageUrl || "https://via.placeholder.com/1200x800?text=Certificate+Preview"}
-                        alt={certificateForm.imageAlt || certificateForm.name || "Certificate preview"}
+                        src={
+                          certificateLocalPreview ||
+                          certificateForm.imageUrl ||
+                          certificateForm.image ||
+                          "https://via.placeholder.com/1200x800?text=Certificate+Preview"
+                        }
+                        alt={
+                          certificateForm.imageAlt ||
+                          certificateForm.name ||
+                          "Certificate preview"
+                        }
                         className="h-full w-full object-cover"
                       />
                     </div>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-canvas/20 p-4 text-sm text-text-secondary">
-                    <p className="font-semibold text-text-primary mb-2">Quick tips</p>
+                    <p className="font-semibold text-text-primary mb-2">
+                      Quick tips
+                    </p>
                     <ul className="space-y-2 list-disc pl-5">
-                      <li>Use the admin form to save certificate image URLs and details.</li>
-                      <li>For local files, put them in <span className="font-semibold">client/public/certificates</span>.</li>
-                      <li>You can also paste a full image URL from Google Drive, Cloudinary, or any direct image host.</li>
+                      <li>
+                        Use the form to save certificate details and upload an
+                        image.
+                      </li>
+                      <li>
+                        For local files, put them in{" "}
+                        <span className="font-semibold">
+                          client/public/certificates
+                        </span>
+                        .
+                      </li>
+                      <li>
+                        You can also paste a direct image URL from any host.
+                      </li>
                     </ul>
-                    {/* File uploader moved under Image URL input */}
                   </div>
                 </div>
 
@@ -871,7 +1134,9 @@ export default function AdminSectionManager() {
                     <Save size={16} /> {saving ? "Saving..." : "Save"}
                   </button>
                   <button
-                    onClick={() => setCertificateForm(selectedItem || config.template)}
+                    onClick={() =>
+                      setCertificateForm(selectedItem || config.template)
+                    }
                     className="rounded-lg border border-white/10 px-4 py-2 font-semibold hover:border-accent/50"
                   >
                     Reset
@@ -887,31 +1152,43 @@ export default function AdminSectionManager() {
                       type="text"
                       value={projectForm.title || ""}
                       onChange={(e) =>
-                        setProjectForm((prev) => ({ ...prev, title: e.target.value }))
+                        setProjectForm((prev) => ({
+                          ...prev,
+                          title: e.target.value,
+                        }))
                       }
                       className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
                       placeholder="Project title"
                     />
                   </label>
                   <label className="space-y-2">
-                    <span className="block text-sm font-semibold">Order</span>
+                    <span className="block text-sm font-semibold">Type</span>
                     <input
-                      type="number"
-                      value={projectForm.order ?? 0}
+                      type="text"
+                      value={projectForm.type || ""}
                       onChange={(e) =>
-                        setProjectForm((prev) => ({ ...prev, order: Number(e.target.value) }))
+                        setProjectForm((prev) => ({
+                          ...prev,
+                          type: e.target.value,
+                        }))
                       }
                       className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
+                      placeholder="Website, App, Dashboard"
                     />
                   </label>
                 </div>
 
                 <label className="space-y-2 block">
-                  <span className="block text-sm font-semibold">Description</span>
+                  <span className="block text-sm font-semibold">
+                    Description
+                  </span>
                   <textarea
                     value={projectForm.description || ""}
                     onChange={(e) =>
-                      setProjectForm((prev) => ({ ...prev, description: e.target.value }))
+                      setProjectForm((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
                     }
                     rows={3}
                     className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
@@ -919,26 +1196,89 @@ export default function AdminSectionManager() {
                   />
                 </label>
 
+                <label className="space-y-2 block">
+                  <span className="block text-sm font-semibold">
+                    Long Description
+                  </span>
+                  <textarea
+                    value={projectForm.longDescription || ""}
+                    onChange={(e) =>
+                      setProjectForm((prev) => ({
+                        ...prev,
+                        longDescription: e.target.value,
+                      }))
+                    }
+                    rows={4}
+                    className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
+                    placeholder="Full description shown in the project overlay"
+                  />
+                </label>
+
                 <div className="grid md:grid-cols-2 gap-4">
                   <label className="space-y-2">
-                    <span className="block text-sm font-semibold">GitHub URL</span>
+                    <span className="block text-sm font-semibold">
+                      Platform
+                    </span>
+                    <input
+                      type="text"
+                      value={projectForm.platform || ""}
+                      onChange={(e) =>
+                        setProjectForm((prev) => ({
+                          ...prev,
+                          platform: e.target.value,
+                        }))
+                      }
+                      className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
+                      placeholder="WordPress, MERN, Flutter"
+                    />
+                  </label>
+                  <label className="space-y-2">
+                    <span className="block text-sm font-semibold">Country</span>
+                    <input
+                      type="text"
+                      value={projectForm.country || ""}
+                      onChange={(e) =>
+                        setProjectForm((prev) => ({
+                          ...prev,
+                          country: e.target.value,
+                        }))
+                      }
+                      className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
+                      placeholder="USA, Sri Lanka, Remote"
+                    />
+                  </label>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <label className="space-y-2">
+                    <span className="block text-sm font-semibold">
+                      GitHub URL
+                    </span>
                     <input
                       type="text"
                       value={projectForm.githubUrl || ""}
                       onChange={(e) =>
-                        setProjectForm((prev) => ({ ...prev, githubUrl: e.target.value }))
+                        setProjectForm((prev) => ({
+                          ...prev,
+                          githubUrl: e.target.value,
+                        }))
                       }
                       className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
                       placeholder="https://github.com/..."
                     />
                   </label>
                   <label className="space-y-2">
-                    <span className="block text-sm font-semibold">Live URL</span>
+                    <span className="block text-sm font-semibold">
+                      Live URL
+                    </span>
                     <input
                       type="text"
                       value={projectForm.liveUrl || ""}
                       onChange={(e) =>
-                        setProjectForm((prev) => ({ ...prev, liveUrl: e.target.value }))
+                        setProjectForm((prev) => ({
+                          ...prev,
+                          liveUrl: e.target.value,
+                        }))
                       }
                       className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
                       placeholder="https://..."
@@ -948,57 +1288,85 @@ export default function AdminSectionManager() {
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <label className="space-y-2">
-                    <span className="block text-sm font-semibold">Tech Stack (comma separated)</span>
+                    <span className="block text-sm font-semibold">
+                      Languages / Tech Stack (comma separated)
+                    </span>
                     <input
                       type="text"
                       value={(projectForm.techStack || []).join(", ")}
                       onChange={(e) =>
-                        setProjectForm((prev) => ({ ...prev, techStack: e.target.value.split(",").map(s => s.trim()) }))
+                        setProjectForm((prev) => ({
+                          ...prev,
+                          techStack: e.target.value
+                            .split(",")
+                            .map((s) => s.trim()),
+                        }))
                       }
                       className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
                       placeholder="React, Node.js, Tailwind"
                     />
                   </label>
                   <label className="space-y-2">
-                    <span className="block text-sm font-semibold">Featured</span>
+                    <span className="block text-sm font-semibold">
+                      Featured
+                    </span>
                     <div className="flex items-center gap-3">
                       <input
                         type="checkbox"
                         checked={!!projectForm.featured}
                         onChange={(e) =>
-                          setProjectForm((prev) => ({ ...prev, featured: e.target.checked }))
+                          setProjectForm((prev) => ({
+                            ...prev,
+                            featured: e.target.checked,
+                          }))
                         }
                         className="w-5 h-5"
                       />
-                      <span className="text-text-secondary">Show as featured</span>
+                      <span className="text-text-secondary">
+                        Show as featured
+                      </span>
                     </div>
                   </label>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <label className="space-y-2">
-                    <span className="block text-sm font-semibold">Image URL</span>
+                    <span className="block text-sm font-semibold">
+                      Image URL
+                    </span>
                     <input
                       type="text"
                       value={projectForm.imageUrl || ""}
                       onChange={(e) =>
-                        setProjectForm((prev) => ({ ...prev, imageUrl: e.target.value }))
+                        setProjectForm((prev) => ({
+                          ...prev,
+                          imageUrl: e.target.value,
+                        }))
                       }
                       className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
                       placeholder="/projects/your-file.png or https://..."
                     />
                     <p className="text-xs text-text-secondary">
-                      For local files, place them in <span className="font-semibold">server/uploads/projects</span> by using the upload button or use a full image URL.
+                      For local files, place them in{" "}
+                      <span className="font-semibold">
+                        server/uploads/projects
+                      </span>{" "}
+                      by using the upload button or use a full image URL.
                     </p>
                   </label>
 
                   <label className="space-y-2">
-                    <span className="block text-sm font-semibold">Image Alt Text</span>
+                    <span className="block text-sm font-semibold">
+                      Image Alt Text
+                    </span>
                     <input
                       type="text"
                       value={projectForm.imageAlt || ""}
                       onChange={(e) =>
-                        setProjectForm((prev) => ({ ...prev, imageAlt: e.target.value }))
+                        setProjectForm((prev) => ({
+                          ...prev,
+                          imageAlt: e.target.value,
+                        }))
                       }
                       className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
                       placeholder="Image description"
@@ -1006,22 +1374,60 @@ export default function AdminSectionManager() {
                   </label>
                 </div>
 
+                <div className="grid md:grid-cols-2 gap-4">
+                  <label className="space-y-2">
+                    <span className="block text-sm font-semibold">Order</span>
+                    <input
+                      type="number"
+                      value={projectForm.order ?? 0}
+                      onChange={(e) =>
+                        setProjectForm((prev) => ({
+                          ...prev,
+                          order: Number(e.target.value),
+                        }))
+                      }
+                      className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
+                    />
+                  </label>
+                </div>
+
                 <div className="grid md:grid-cols-[180px_1fr] gap-4 items-start">
-                      <div className="rounded-2xl border border-white/10 bg-canvas/30 overflow-hidden">
+                  <div className="rounded-2xl border border-white/10 bg-canvas/30 overflow-hidden">
                     <div className="aspect-[4/3] bg-canvas/50">
                       <img
-                        src={projectLocalPreview || projectForm.imageUrl || "https://via.placeholder.com/1200x800?text=Project+Preview"}
-                        alt={projectForm.imageAlt || projectForm.title || "Project preview"}
+                        src={
+                          projectLocalPreview ||
+                          projectForm.imageUrl ||
+                          "https://via.placeholder.com/1200x800?text=Project+Preview"
+                        }
+                        alt={
+                          projectForm.imageAlt ||
+                          projectForm.title ||
+                          "Project preview"
+                        }
                         className="h-full w-full object-cover"
                       />
                     </div>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-canvas/20 p-4 text-sm text-text-secondary">
-                    <p className="font-semibold text-text-primary mb-2">Quick tips</p>
+                    <p className="font-semibold text-text-primary mb-2">
+                      Quick tips
+                    </p>
                     <ul className="space-y-2 list-disc pl-5">
-                      <li>Use the upload button to store project images on the server.</li>
-                      <li>For local files, the server stores them in <span className="font-semibold">server/uploads/projects</span>.</li>
-                      <li>You can also paste a full image URL from any image host.</li>
+                      <li>
+                        Use the upload button to store project images on the
+                        server.
+                      </li>
+                      <li>
+                        For local files, the server stores them in{" "}
+                        <span className="font-semibold">
+                          server/uploads/projects
+                        </span>
+                        .
+                      </li>
+                      <li>
+                        You can also paste a full image URL from any image host.
+                      </li>
                     </ul>
                     <div className="mt-3 flex items-center gap-3">
                       <input
@@ -1041,7 +1447,11 @@ export default function AdminSectionManager() {
                       >
                         Choose file
                       </button>
-                      {projectUploading && <span className="text-sm text-text-secondary">Uploading...</span>}
+                      {projectUploading && (
+                        <span className="text-sm text-text-secondary">
+                          Uploading...
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1055,7 +1465,9 @@ export default function AdminSectionManager() {
                     <Save size={16} /> {saving ? "Saving..." : "Save"}
                   </button>
                   <button
-                    onClick={() => setProjectForm(selectedItem || config.template)}
+                    onClick={() =>
+                      setProjectForm(selectedItem || config.template)
+                    }
                     className="rounded-lg border border-white/10 px-4 py-2 font-semibold hover:border-accent/50"
                   >
                     Reset
@@ -1081,7 +1493,11 @@ export default function AdminSectionManager() {
                     <Save size={16} /> {saving ? "Saving..." : "Save"}
                   </button>
                   <button
-                    onClick={() => setEditorText(toEditorText(selectedItem || config.template))}
+                    onClick={() =>
+                      setEditorText(
+                        toEditorText(selectedItem || config.template),
+                      )
+                    }
                     className="rounded-lg border border-white/10 px-4 py-2 font-semibold hover:border-accent/50"
                   >
                     Reset
@@ -1095,8 +1511,9 @@ export default function AdminSectionManager() {
             <div className="bg-overlay/40 border border-white/10 rounded-2xl p-6">
               <h3 className="text-lg font-bold mb-2">How this works</h3>
               <p className="text-text-secondary text-sm leading-relaxed">
-                This editor saves the JSON directly to your portfolio data. Use it to edit any field,
-                including nested arrays like stats, bullets, skills, techStack, or socialLinks.
+                This editor saves the JSON directly to your portfolio data. Use
+                it to edit any field, including nested arrays like stats,
+                bullets, skills, techStack, or socialLinks.
               </p>
             </div>
           )}

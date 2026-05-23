@@ -24,7 +24,12 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:3000"],
+    origin: (origin, callback) => {
+      const allowed =
+        !origin || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+
+      callback(null, allowed ? true : false);
+    },
     credentials: true,
   }),
 );
@@ -38,6 +43,24 @@ app.use("/uploads", express.static(uploadsDir));
 
 // Connect to MongoDB
 connectDB();
+
+// Simple logger for project API requests to aid debugging
+app.use((req, res, next) => {
+  try {
+    if (req.path && req.path.startsWith("/api/projects")) {
+      console.log(
+        "[proj-api]",
+        req.method,
+        req.path,
+        "Authorization:",
+        req.headers.authorization || "(none)",
+      );
+    }
+  } catch (_e) {
+    // swallow logging errors
+  }
+  next();
+});
 
 // Routes
 app.use("/api", heroRoutes);

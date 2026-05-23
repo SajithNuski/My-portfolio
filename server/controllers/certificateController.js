@@ -1,8 +1,67 @@
+import mongoose from "mongoose";
 import Certificate from "../models/Certificate.js";
+
+const isValidCertificateId = (id) => mongoose.isValidObjectId(id);
+
+const normalizeCertificatePayload = (payload = {}) => {
+  const skills = Array.isArray(payload.skills)
+    ? payload.skills
+    : String(payload.skills || "")
+        .split(",")
+        .map((skill) => skill.trim())
+        .filter(Boolean);
+
+  const title = String(payload.title || payload.name || "").trim();
+  const issuer = String(payload.issuer || "").trim();
+  const imageUrl = String(payload.imageUrl || payload.image || "").trim();
+  const certificateUrl = String(
+    payload.certificateUrl || payload.credentialUrl || payload.pdfUrl || "",
+  ).trim();
+  const { _id, id, ...safePayload } = payload;
+
+  return {
+    ...safePayload,
+    name: String(payload.name || title).trim(),
+    title,
+    issuer,
+    issuerLogo: String(payload.issuerLogo || "").trim(),
+    description: String(payload.description || "").trim(),
+    icon: String(payload.icon || "").trim(),
+    imageUrl,
+    image: imageUrl,
+    imageAlt: String(payload.imageAlt || "").trim(),
+    pdfUrl: String(payload.pdfUrl || "").trim(),
+    credentialUrl: String(payload.credentialUrl || "").trim(),
+    certificateUrl,
+    credentialId: String(payload.credentialId || "").trim(),
+    completedDate: String(payload.completedDate || "").trim(),
+    verified:
+      payload.verified === true ||
+      payload.verified === "true" ||
+      payload.verified === 1,
+    skills,
+    accent: String(payload.accent || "green")
+      .trim()
+      .toLowerCase(),
+    order: Number(payload.order ?? 0),
+    visible:
+      payload.visible === undefined
+        ? true
+        : payload.visible === true ||
+          payload.visible === "true" ||
+          payload.visible === 1,
+  };
+};
 
 export const getCertificates = async (req, res) => {
   try {
-    const certificates = await Certificate.find().sort({ order: 1 });
+    const includeHidden =
+      req.query.all === "true" || req.query.includeHidden === "true";
+    const filter = includeHidden ? {} : { visible: { $ne: false } };
+    const certificates = await Certificate.find(filter).sort({
+      order: 1,
+      createdAt: 1,
+    });
     res.json(certificates);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -11,7 +70,7 @@ export const getCertificates = async (req, res) => {
 
 export const createCertificate = async (req, res) => {
   try {
-    const certificate = new Certificate(req.body);
+    const certificate = new Certificate(normalizeCertificatePayload(req.body));
     await certificate.save();
     res.status(201).json(certificate);
   } catch (error) {
@@ -21,9 +80,13 @@ export const createCertificate = async (req, res) => {
 
 export const updateCertificate = async (req, res) => {
   try {
+    if (!isValidCertificateId(req.params.id)) {
+      return res.status(400).json({ message: "Invalid certificate id" });
+    }
+
     const certificate = await Certificate.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      normalizeCertificatePayload(req.body),
       { new: true },
     );
     res.json(certificate);
@@ -32,8 +95,53 @@ export const updateCertificate = async (req, res) => {
   }
 };
 
+export const toggleCertificateVisibility = async (req, res) => {
+  try {
+    if (!isValidCertificateId(req.params.id)) {
+      return res.status(400).json({ message: "Invalid certificate id" });
+    }
+
+    const certificate = await Certificate.findByIdAndUpdate(
+      req.params.id,
+      { visible: Boolean(req.body.visible) },
+      { new: true },
+    );
+
+    res.json(certificate);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const reorderCertificates = async (req, res) => {
+  try {
+    const { items = [] } = req.body;
+    const validItems = items.filter((item) => isValidCertificateId(item.id));
+
+    await Promise.all(
+      validItems.map((item) =>
+        Certificate.findByIdAndUpdate(item.id, {
+          order: Number(item.order || 0),
+        }),
+      ),
+    );
+
+    const certificates = await Certificate.find().sort({
+      order: 1,
+      createdAt: 1,
+    });
+    res.json(certificates);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const deleteCertificate = async (req, res) => {
   try {
+    if (!isValidCertificateId(req.params.id)) {
+      return res.status(400).json({ message: "Invalid certificate id" });
+    }
+
     await Certificate.findByIdAndDelete(req.params.id);
     res.json({ message: "Certificate deleted" });
   } catch (error) {

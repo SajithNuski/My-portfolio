@@ -1,0 +1,629 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap");
+
+.projectsSection {
+  /* removed section background so animated background shows through */
+  background: transparent;
+  color: #f1f5f9;
+  padding: 84px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.container {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.header {
+  margin-bottom: 26px;
+}
+
+.eyebrow {
+  margin: 0;
+  font-family: "Space Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: rgba(241, 245, 249, 0.45);
+  text-transform: uppercase;
+}
+
+.heading {
+  margin: 10px 0 0;
+  font-family: "DM Sans", sans-serif;
+  font-size: clamp(26px, 4vw, 36px);
+  line-height: 1.15;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.projectCard {
+  position: relative;
+  border-radius: 16px;
+  border: 1px solid rgba(var(--accent-rgb), 0.22);
+  /* make cards semi-transparent so the animated background is visible through them */
+  background: rgba(13, 17, 23, 0.28);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    transform 300ms ease,
+    border-color 300ms ease,
+    box-shadow 300ms ease;
+  isolation: isolate;
+  outline: none;
+}
+
+.projectCard:hover,
+.projectCard:focus-visible {
+  transform: translateY(-6px);
+  border-color: rgba(var(--accent-rgb), 0.6);
+  box-shadow: 0 18px 40px rgba(var(--accent-rgb), 0.18);
+}
+
+.scanLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -14px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(var(--accent-rgb), 0.95),
+    transparent
+  );
+  opacity: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.projectCard:hover .scanLine,
+.projectCard:focus-visible .scanLine {
+  opacity: 1;
+  animation: scanDown 900ms ease-out 1;
+}
+
+.cornerBracket {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  opacity: 0;
+  transition: opacity 260ms ease;
+  border-color: rgba(var(--accent-rgb), 0.95);
+  z-index: 3;
+}
+
+.topLeft {
+  top: 9px;
+  left: 9px;
+  border-top: 1px solid;
+  border-left: 1px solid;
+}
+
+.bottomRight {
+  right: 9px;
+  bottom: 9px;
+  border-right: 1px solid;
+  border-bottom: 1px solid;
+}
+
+.projectCard:hover .cornerBracket,
+.projectCard:focus-visible .cornerBracket {
+  opacity: 1;
+}
+
+.topAccentBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    rgba(var(--accent-rgb), 0),
+    rgba(var(--accent-rgb), 0.92),
+    rgba(var(--accent-rgb), 0)
+  );
+  opacity: 0;
+  transition: opacity 260ms ease;
+  z-index: 3;
+}
+
+.projectCard:hover .topAccentBar,
+.projectCard:focus-visible .topAccentBar {
+  opacity: 1;
+}
+
+.thumbWrap {
+  position: relative;
+  height: 165px;
+  overflow: hidden;
+}
+
+.thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition:
+    transform 300ms ease,
+    filter 300ms ease;
+  filter: brightness(0.78);
+}
+
+.projectCard:hover .thumbnail,
+.projectCard:focus-visible .thumbnail {
+  transform: scale(1.08);
+  filter: brightness(0.95);
+}
+
+.thumbGradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(13, 17, 23, 0) 40%,
+    rgba(13, 17, 23, 0.5) 80%,
+    rgba(13, 17, 23, 0.7) 100%
+  );
+  pointer-events: none;
+}
+
+.statusBadge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--accent-rgb), 0.45);
+  background: rgba(13, 17, 23, 0.75);
+  color: var(--accent-hex);
+  font-family: "Space Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--accent-hex);
+  box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.9);
+  animation: pulseDot 1.2s ease-in-out infinite;
+}
+
+.cardBody {
+  padding: 14px 14px 15px;
+}
+
+.cardLabel {
+  margin: 0;
+  font-family: "Space Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: rgba(241, 245, 249, 0.42);
+}
+
+.cardTitle {
+  margin: 8px 0 0;
+  font-family: "DM Sans", sans-serif;
+  font-size: 16px;
+  line-height: 1.3;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.cardDescription {
+  margin: 7px 0 0;
+  font-family: "DM Sans", sans-serif;
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.tags {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.tag {
+  border-radius: 999px;
+  border: 1px solid rgba(241, 245, 249, 0.16);
+  background: rgba(255, 255, 255, 0.02);
+  color: rgba(241, 245, 249, 0.78);
+  padding: 5px 9px;
+  font-family: "Space Mono", monospace;
+  font-size: 10px;
+  line-height: 1;
+  transition:
+    border-color 260ms ease,
+    background-color 260ms ease,
+    color 260ms ease;
+}
+
+.projectCard:hover .tag,
+.projectCard:focus-visible .tag {
+  border-color: rgba(var(--accent-rgb), 0.45);
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent-hex);
+}
+
+.cardFooter {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.detailsButton {
+  border: 1px solid rgba(var(--accent-rgb), 0.45);
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent-hex);
+  border-radius: 10px;
+  padding: 7px 10px;
+  font-family: "Space Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.starCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(241, 245, 249, 0.66);
+  font-family: "Space Mono", monospace;
+  font-size: 11px;
+}
+
+.particle {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--size);
+  height: var(--size);
+  border-radius: 999px;
+  pointer-events: none;
+  background: rgba(var(--particle-rgb), 0.9);
+  box-shadow: 0 0 14px rgba(var(--particle-rgb), 0.95);
+  transform: translate(-50%, -50%);
+  animation: particleBurst 1.3s ease-out forwards;
+  animation-delay: var(--delay);
+  z-index: 4;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(5, 8, 12, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 250ms ease;
+}
+
+.modalOverlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modalOverlay.closing {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.modalPanel {
+  width: min(820px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow: auto;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  /* make modal panel semi-transparent so the background peeks through */
+  background: rgba(13, 17, 23, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  position: relative;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+  transform: translateY(22px) scale(0.97);
+  opacity: 0;
+  transition:
+    transform 350ms cubic-bezier(0.23, 1, 0.32, 1),
+    opacity 350ms cubic-bezier(0.23, 1, 0.32, 1);
+  isolation: isolate;
+}
+
+.modalOverlay.open .modalPanel {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.modalOverlay.closing .modalPanel {
+  transform: translateY(12px) scale(0.98);
+  opacity: 0;
+  transition:
+    transform 250ms ease,
+    opacity 250ms ease;
+}
+
+.modalPanel::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 19px;
+  padding: 1px;
+  background: conic-gradient(
+    from 0deg,
+    rgba(74, 222, 128, 0.75),
+    rgba(96, 165, 250, 0.75),
+    rgba(244, 114, 182, 0.75),
+    rgba(74, 222, 128, 0.75)
+  );
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  animation: hueShift 7s linear infinite;
+  z-index: -1;
+}
+
+.closeButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(13, 17, 23, 0.65);
+  color: #f1f5f9;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 3;
+}
+
+.modalHeader {
+  position: relative;
+  height: 210px;
+  overflow: hidden;
+}
+
+.modalHeaderImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: kenBurns 900ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.modalHeaderGradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(13, 17, 23, 0) 42%,
+    rgba(13, 17, 23, 0.7) 82%,
+    #0d1117 100%
+  );
+}
+
+.modalBody {
+  padding: 20px 20px 24px;
+}
+
+.modalProjectNum {
+  margin: 0;
+  font-family: "Space Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: rgba(241, 245, 249, 0.45);
+}
+
+.modalCategoryRow {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modalCategory {
+  font-family: "Space Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+}
+
+.modalCategoryLine {
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(90deg, rgba(241, 245, 249, 0.5), transparent);
+}
+
+.modalTitle {
+  margin: 10px 0 0;
+  font-family: "DM Sans", sans-serif;
+  font-size: 21px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.modalDescription {
+  margin: 12px 0 0;
+  font-family: "DM Sans", sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(241, 245, 249, 0.75);
+}
+
+.modalDivider {
+  margin-top: 16px;
+  height: 1px;
+  background: rgba(241, 245, 249, 0.1);
+}
+
+.featureGrid {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.featureList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 9px;
+}
+
+.featureItem {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  color: rgba(241, 245, 249, 0.86);
+}
+
+.featureDot {
+  margin-top: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  box-shadow: 0 0 10px currentColor;
+}
+
+.modalTags {
+  margin: 17px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.modalTag {
+  border-radius: 999px;
+  border: 1px solid rgba(241, 245, 249, 0.18);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(241, 245, 249, 0.86);
+  font-family: "Space Mono", monospace;
+  font-size: 10px;
+  padding: 6px 10px;
+}
+
+.liveButton {
+  margin-top: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  border: 1px solid rgba(74, 222, 128, 0.58);
+  background: rgba(74, 222, 128, 0.14);
+  color: #4ade80;
+  font-family: "Space Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 900px) {
+  .featureGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .projectsSection {
+    padding: 70px 0;
+  }
+
+  .container {
+    padding: 0 16px;
+  }
+
+  .modalBody {
+    padding: 16px 14px 18px;
+  }
+
+  .modalTitle {
+    font-size: 19px;
+  }
+}
+
+@keyframes scanDown {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(335px);
+  }
+}
+
+@keyframes pulseDot {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 1;
+  }
+}
+
+@keyframes particleBurst {
+  0% {
+    transform: translate(-50%, -50%) translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) translate(var(--dx), var(--dy)) scale(0.3);
+    opacity: 0;
+  }
+}
+
+@keyframes hueShift {
+  from {
+    filter: hue-rotate(0deg);
+  }
+  to {
+    filter: hue-rotate(360deg);
+  }
+}
+
+@keyframes kenBurns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}

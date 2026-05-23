@@ -16,6 +16,7 @@ const codeSnippets = [
   "UnhandledPromiseRejectionWarning",
   "404 NOT FOUND",
   "ERROR",
+  "Developed By Sajith",
 ];
 
 const getRandom = (min, max) => Math.random() * (max - min) + min;
@@ -35,8 +36,8 @@ export default function AnimatedCodeBackground() {
         rotate: getRandom(-14, 14),
         duration: getRandom(9, 18),
         delay: getRandom(0, 8),
-        scale: getRandom(0.85, 1.12),
-        opacity: getRandom(0.08, 0.24),
+        scale: getRandom(0.1, 1.08),
+        opacity: getRandom(0.1, 0.22),
         driftX: getRandom(-18, 18),
         driftY: getRandom(-14, 14),
         isError,
@@ -46,8 +47,7 @@ export default function AnimatedCodeBackground() {
 
   return (
     <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
-      <div className="absolute inset-0 bg-gradient-to-b from-canvas via-canvas/95 to-canvas" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(63,185,80,0.08),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.08),transparent_30%)]" />
+      {/* removed full-screen gradient overlays to let the code floats show through */}
 
       {items.map((item) => (
         <motion.div
@@ -76,11 +76,11 @@ export default function AnimatedCodeBackground() {
             left: `${item.left}%`,
             transform: `translate(-50%, -50%) rotate(${item.rotate}deg)`,
             color: item.isError
-              ? "rgba(239, 68, 68, 0.95)"
-              : "rgba(34, 197, 94, 0.9)",
+              ? "rgba(239, 68, 68, 0.9)"
+              : "rgba(34, 197, 94, 0.88)",
             textShadow: item.isError
-              ? "0 0 12px rgba(239, 68, 68, 0.35)"
-              : "0 0 12px rgba(34, 197, 94, 0.28)",
+              ? "0 0 12px rgba(239, 68, 68, 0.3)"
+              : "0 0 12px rgba(34, 197, 94, 0.22)",
             opacity: item.opacity,
           }}
           className="absolute whitespace-nowrap font-mono text-[10px] sm:text-xs md:text-sm select-none code-float"

@@ -43,9 +43,13 @@ export default function AdminDashboard() {
             {
               title: "Manage Projects",
               icon: "📁",
-              href: "/admin/manage/projects",
+              href: "/admin/projects",
             },
-            { title: "Update Skills", icon: "🛠️", href: "/admin/manage/skills" },
+            {
+              title: "Update Skills",
+              icon: "🛠️",
+              href: "/admin/manage/skills",
+            },
             {
               title: "Edit Experience",
               icon: "💼",
@@ -56,7 +60,11 @@ export default function AdminDashboard() {
               icon: "🏆",
               href: "/admin/manage/certificates",
             },
-            { title: "View Messages", icon: "💬", href: "/admin/manage/messages" },
+            {
+              title: "View Messages",
+              icon: "💬",
+              href: "/admin/manage/messages",
+            },
           ].map((item, idx) => (
             <Link
               key={idx}

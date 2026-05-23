@@ -1,141 +1,396 @@
-import React from "react";
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { ExternalLink, Star, X } from "lucide-react";
 import { fetchProjects } from "../api/index.js";
-import { Github, ExternalLink } from "lucide-react";
-import ProjectModal from "./ProjectModal.jsx";
+import styles from "./Projects.module.css";
 
-function ProjectCard({ project, onExplore }) {
-  const thumb =
-    project.imageUrl ||
-    project.image ||
-    project.thumbnail ||
-    project.coverImage ||
-    "https://via.placeholder.com/800x450?text=Project+Preview";
-  return (
-    <motion.div whileHover={{ y: -6 }} className="relative group">
-      <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-blue/10 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-      <div className="relative bg-overlay/40 backdrop-blur-lg border border-white/10 rounded-lg p-4 hover:border-accent/50 transition group-hover:scale-105 h-full flex flex-col">
-        {/* Thumbnail */}
-        <div className="w-full rounded-md overflow-hidden mb-3">
-          <img
-            src={thumb}
-            alt={project.title}
-            className="w-full h-36 object-cover block"
-            loading="lazy"
-          />
-        </div>
+const accentColors = {
+  green: { hex: "#4ade80", rgb: "74,222,128" },
+  blue: { hex: "#60a5fa", rgb: "96,165,250" },
+  pink: { hex: "#f472b6", rgb: "244,114,182" },
+  purple: { hex: "#a78bfa", rgb: "167,139,250" },
+};
 
-        <h3 className="text-lg font-bold text-text-primary mb-1">
-          {project.title}
-        </h3>
-        <p className="text-text-secondary text-sm mb-3 line-clamp-2">
-          {project.description}
-        </p>
+const MODAL_EXIT_MS = 250;
 
-        {/* Tech Stack */}
-        <div className="flex flex-wrap gap-2 mb-3">
-          {project.techStack?.map((tech, idx) => (
-            <span
-              key={idx}
-              className="px-2 py-0.5 bg-subtle text-accent text-xs rounded-full font-mono"
-            >
-              {tech}
-            </span>
-          ))}
-        </div>
-
-        <div className="mt-auto flex items-center justify-between">
-          <div className="flex gap-3">
-            {project.githubUrl && (
-              <a
-                href={project.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-blue hover:text-blue-dim transition text-sm"
-              >
-                <Github size={14} /> Code
-              </a>
-            )}
-            {project.liveUrl && (
-              <a
-                href={project.liveUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-accent hover:text-accent-hover transition text-sm"
-              >
-                <ExternalLink size={14} /> Live
-              </a>
-            )}
-          </div>
-
-          <button
-            onClick={() => onExplore?.(project)}
-            className="ml-4 px-3 py-2 bg-accent text-black text-sm rounded-md hover:bg-accent/90 transition"
-          >
-            Explore
-          </button>
-        </div>
-      </div>
-    </motion.div>
-  );
+function splitFeatureColumns(items) {
+  const midpoint = Math.ceil(items.length / 2);
+  return [items.slice(0, midpoint), items.slice(midpoint)];
 }
 
 export default function Projects() {
   const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedProject, setSelectedProject] = useState(null);
+  const [activeModal, setActiveModal] = useState(null);
+  const [modalClosing, setModalClosing] = useState(false);
+  const [particles, setParticles] = useState([]);
+  const particleTimeoutsRef = useRef([]);
+  const modalTimeoutRef = useRef(null);
 
   useEffect(() => {
-    fetchProjects()
-      .then((res) => {
-        setProjects(res.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch projects:", err);
-        setLoading(false);
-      });
+    const loadProjects = async () => {
+      try {
+        const response = await fetchProjects();
+        const normalized = (response.data || []).map((item, index) => {
+          const accentKey = String(item.accent || "green")
+            .trim()
+            .toLowerCase();
+          const allTags = Array.isArray(item.allTags)
+            ? item.allTags
+            : Array.isArray(item.techStack)
+              ? item.techStack
+              : [];
+          const features = Array.isArray(item.features)
+            ? item.features
+            : Array.isArray(item.bullets)
+              ? item.bullets
+              : [];
+
+          return {
+            id: item._id,
+            num: item.projectNumber || String(index + 1).padStart(2, "0"),
+            category: item.category || item.type || "PROJECT",
+            accent: accentColors[accentKey] ? accentKey : "green",
+            status: item.status || "LIVE",
+            title: item.title || "Untitled Project",
+            description: item.shortDescription || item.description || "",
+            tags: Array.isArray(item.cardTags)
+              ? item.cardTags
+              : allTags.slice(0, 3),
+            thumbnail: item.thumbnail || item.imageUrl || "",
+            stars: Number(item.stars || 0),
+            fullDescription:
+              item.fullDescription ||
+              item.longDescription ||
+              item.description ||
+              "",
+            features,
+            allTags,
+            liveUrl: item.liveUrl || "#",
+            visible:
+              typeof item.visible === "boolean"
+                ? item.visible
+                : typeof item.featured === "boolean"
+                  ? item.featured
+                  : true,
+            order: Number(item.order || index),
+          };
+        });
+
+        setProjects(
+          normalized
+            .filter((project) => project.visible)
+            .sort((a, b) => a.order - b.order),
+        );
+      } catch (_err) {
+        setProjects([]);
+      }
+    };
+
+    loadProjects();
   }, []);
 
+  const activeProject = useMemo(
+    () => projects.find((project) => project.id === activeModal) || null,
+    [activeModal],
+  );
+
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        handleCloseModal();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [activeModal, modalClosing]);
+
+  useEffect(() => {
+    return () => {
+      particleTimeoutsRef.current.forEach((timeoutId) => {
+        window.clearTimeout(timeoutId);
+      });
+
+      if (modalTimeoutRef.current) {
+        window.clearTimeout(modalTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const spawnParticles = (event, accent) => {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const hasPointer =
+      typeof event.clientX === "number" && typeof event.clientY === "number";
+    const baseX = hasPointer ? event.clientX - bounds.left : bounds.width / 2;
+    const baseY = hasPointer ? event.clientY - bounds.top : bounds.height / 2;
+    const color = accentColors[accent] || accentColors.green;
+
+    const newParticles = Array.from({ length: 10 }, (_, index) => {
+      const angle = (Math.PI * 2 * index) / 10;
+      const distance = 28 + Math.random() * 42;
+      const dx = Math.cos(angle) * distance;
+      const dy = Math.sin(angle) * distance - (20 + Math.random() * 28);
+      return {
+        id: `${Date.now()}-${Math.random()}`,
+        x: baseX,
+        y: baseY,
+        dx,
+        dy,
+        size: 4 + Math.random() * 6,
+        delay: index * 0.03,
+        color,
+      };
+    });
+
+    setParticles((current) => [...current, ...newParticles]);
+
+    const timeoutId = window.setTimeout(() => {
+      const idsToRemove = new Set(newParticles.map((particle) => particle.id));
+      setParticles((current) =>
+        current.filter((particle) => !idsToRemove.has(particle.id)),
+      );
+    }, 1300);
+
+    particleTimeoutsRef.current.push(timeoutId);
+  };
+
+  const handleOpenModal = (projectId, event, accent) => {
+    spawnParticles(event, accent);
+    setModalClosing(false);
+    setActiveModal(projectId);
+  };
+
+  const handleCloseModal = () => {
+    if (!activeModal || modalClosing) return;
+
+    setModalClosing(true);
+    if (modalTimeoutRef.current) {
+      window.clearTimeout(modalTimeoutRef.current);
+    }
+
+    modalTimeoutRef.current = window.setTimeout(() => {
+      setActiveModal(null);
+      setModalClosing(false);
+    }, MODAL_EXIT_MS);
+  };
+
   return (
-    <section id="projects" className="py-20 bg-transparent">
-      <div className="max-w-6xl mx-auto px-6">
+    <section id="projects" className={styles.projectsSection}>
+      <div className={styles.container}>
         <h2 className="text-4xl md:text-5xl font-bold font-head text-text-primary mb-12 text-center">
-          Featured Projects
+          Latest Projects
         </h2>
 
-        {loading ? (
-          <p className="text-center text-text-secondary">Loading projects...</p>
-        ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {projects.map((project) => (
-              <ProjectCard
-                key={project._id}
-                project={project}
-                onExplore={setSelectedProject}
-              />
-            ))}
-          </div>
-        )}
+        <div className={styles.grid}>
+          {projects.map((project) => {
+            const accent = accentColors[project.accent] || accentColors.green;
 
-        {/* Project Details Modal */}
-        {selectedProject && (
-          <ProjectModal
-            project={selectedProject}
-            onClose={() => setSelectedProject(null)}
-          />
-        )}
+            return (
+              <article
+                key={project.id}
+                className={styles.projectCard}
+                style={{
+                  "--accent-hex": accent.hex,
+                  "--accent-rgb": accent.rgb,
+                }}
+                onClick={(event) =>
+                  handleOpenModal(project.id, event, project.accent)
+                }
+                role="button"
+                tabIndex={0}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    handleOpenModal(project.id, event, project.accent);
+                  }
+                }}
+                aria-label={`Open ${project.title} details`}
+              >
+                <span className={styles.scanLine} aria-hidden="true" />
+                <span
+                  className={`${styles.cornerBracket} ${styles.topLeft}`}
+                  aria-hidden="true"
+                />
+                <span
+                  className={`${styles.cornerBracket} ${styles.bottomRight}`}
+                  aria-hidden="true"
+                />
+                <span className={styles.topAccentBar} aria-hidden="true" />
 
-        {/* Animated HR Line */}
-        <motion.div
-          initial={{ scaleX: 0 }}
-          whileInView={{ scaleX: 1 }}
-          transition={{ duration: 1, ease: "easeOut" }}
-          viewport={{ once: true }}
-          className="mt-20 h-1 bg-gradient-to-r from-transparent via-accent to-transparent rounded-full"
-        />
+                <div className={styles.thumbWrap}>
+                  <img
+                    src={project.thumbnail}
+                    alt={project.title}
+                    className={styles.thumbnail}
+                    loading="lazy"
+                    onError={(event) => {
+                      event.currentTarget.src =
+                        "https://via.placeholder.com/1200x675/0d1117/f1f5f9?text=Project+Preview";
+                    }}
+                  />
+                  <div className={styles.thumbGradient} />
+
+                  <span className={styles.statusBadge}>
+                    <span className={styles.statusDot} aria-hidden="true" />
+                    {project.status}
+                  </span>
+                </div>
+
+                <div className={styles.cardBody}>
+                  <p className={styles.cardLabel}>
+                    {project.num} / {project.category}
+                  </p>
+                  <h3 className={styles.cardTitle}>{project.title}</h3>
+                  <p className={styles.cardDescription}>
+                    {project.description}
+                  </p>
+
+                  <ul className={styles.tags}>
+                    {project.tags.slice(0, 3).map((tag) => (
+                      <li key={tag} className={styles.tag}>
+                        {tag}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <footer className={styles.cardFooter}>
+                    <button type="button" className={styles.detailsButton}>
+                      View Details
+                    </button>
+                    <span className={styles.starCount}>
+                      <Star size={14} /> {project.stars}
+                    </span>
+                  </footer>
+                </div>
+
+                {particles.map((particle) => {
+                  if (particle.color.hex !== accent.hex) return null;
+
+                  return (
+                    <span
+                      key={particle.id}
+                      className={styles.particle}
+                      style={{
+                        "--x": `${particle.x}px`,
+                        "--y": `${particle.y}px`,
+                        "--dx": `${particle.dx}px`,
+                        "--dy": `${particle.dy}px`,
+                        "--size": `${particle.size}px`,
+                        "--delay": `${particle.delay}s`,
+                        "--particle-rgb": particle.color.rgb,
+                      }}
+                    />
+                  );
+                })}
+              </article>
+            );
+          })}
+        </div>
       </div>
+
+      {activeProject ? (
+        <div
+          className={`${styles.modalOverlay} ${modalClosing ? styles.closing : styles.open}`}
+          onClick={handleCloseModal}
+          role="presentation"
+        >
+          <div
+            className={styles.modalPanel}
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${activeProject.title} modal`}
+          >
+            <button
+              type="button"
+              className={styles.closeButton}
+              onClick={handleCloseModal}
+              aria-label="Close project modal"
+            >
+              <X size={18} />
+            </button>
+
+            <header className={styles.modalHeader}>
+              <img
+                src={activeProject.thumbnail}
+                alt={activeProject.title}
+                className={styles.modalHeaderImage}
+                onError={(event) => {
+                  event.currentTarget.src =
+                    "https://via.placeholder.com/1200x675/0d1117/f1f5f9?text=Project+Preview";
+                }}
+              />
+              <div className={styles.modalHeaderGradient} />
+            </header>
+
+            <div className={styles.modalBody}>
+              <p className={styles.modalProjectNum}>
+                PROJECT {activeProject.num}
+              </p>
+
+              <div className={styles.modalCategoryRow}>
+                <span
+                  className={styles.modalCategory}
+                  style={{
+                    color:
+                      accentColors[activeProject.accent]?.hex ||
+                      accentColors.green.hex,
+                  }}
+                >
+                  {activeProject.category}
+                </span>
+                <span className={styles.modalCategoryLine} />
+              </div>
+
+              <h3 className={styles.modalTitle}>{activeProject.title}</h3>
+              <p className={styles.modalDescription}>
+                {activeProject.fullDescription}
+              </p>
+
+              <div className={styles.modalDivider} />
+
+              <div className={styles.featureGrid}>
+                {splitFeatureColumns(activeProject.features).map(
+                  (column, index) => (
+                    <ul key={`col-${index}`} className={styles.featureList}>
+                      {column.map((feature) => (
+                        <li key={feature} className={styles.featureItem}>
+                          <span
+                            className={styles.featureDot}
+                            style={{
+                              background:
+                                accentColors[activeProject.accent]?.hex ||
+                                accentColors.green.hex,
+                            }}
+                          />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  ),
+                )}
+              </div>
+
+              <ul className={styles.modalTags}>
+                {activeProject.allTags.map((tag) => (
+                  <li key={tag} className={styles.modalTag}>
+                    {tag}
+                  </li>
+                ))}
+              </ul>
+
+              <a
+                href={activeProject.liveUrl}
+                target="_blank"
+                rel="noreferrer"
+                className={styles.liveButton}
+              >
+                Live Demo <ExternalLink size={15} />
+              </a>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

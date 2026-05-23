@@ -1,0 +1,41 @@
+/* Certificates admin page overrides. The page mostly uses utility classes, but this file is kept
+   for local overrides and future certificate-specific admin tweaks. */
+
+.certificates-admin-shell {
+  min-height: 100vh;
+}
+
+.certificates-admin-shell ::-webkit-scrollbar {
+  width: 10px;
+}
+
+.certificates-admin-shell ::-webkit-scrollbar-track {
+  background: #060b13;
+}
+
+.certificates-admin-shell ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+}
+
+.certificates-admin-shell ::-webkit-scrollbar-thumb:hover {
+  background: rgba(74, 222, 128, 0.8);
+}
+
+.list-thumb {
+  width: 56px;
+  min-width: 56px;
+  height: 56px;
+  min-height: 56px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(74, 222, 128, 0.1);
+}
+
+.list-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
