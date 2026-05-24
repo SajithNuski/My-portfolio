@@ -102,7 +102,7 @@ export default function Skills() {
 
   return (
     <section id="skills" className="py-20 bg-transparent">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-4xl md:text-5xl font-bold font-head text-text-primary mb-12 text-center">
           Skills & Expertise
         </h2>

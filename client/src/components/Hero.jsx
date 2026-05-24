@@ -82,7 +82,7 @@ export default function Hero() {
 
   return (
     <section className="min-h-screen flex items-center justify-center bg-transparent pt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left Column - Text Content */}
           <div className="text-left md:text-left">
@@ -251,7 +251,7 @@ export default function Hero() {
           whileInView={{ scaleX: 1 }}
           transition={{ duration: 1, ease: "easeOut" }}
           viewport={{ once: true }}
-          className="mt-20 h-1 bg-gradient-to-r from-transparent via-accent to-transparent rounded-full max-w-4xl mx-auto"
+          className="mt-20 h-1 bg-gradient-to-r from-transparent via-accent to-transparent rounded-full max-w-3xl mx-auto"
         />
       </div>
     </section>
