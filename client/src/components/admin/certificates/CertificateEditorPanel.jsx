@@ -13,7 +13,6 @@ import {
   Check,
   Copy,
   Award,
-  Building2,
 } from "lucide-react";
 import CertificateCard from "../../../components/certificates/CertificateCard.jsx";
 import StickyActionBar from "./StickyActionBar.jsx";
@@ -333,7 +332,6 @@ export default function CertificateEditorPanel({
     () => ({
       ...editor.form,
       title: editor.form.title || editor.form.name || "Certificate title",
-      issuer: editor.form.issuer || "Issuer",
       completedDate: editor.form.completedDate || "Jan 2024",
       certificateUrl:
         editor.form.certificateUrl ||
@@ -431,15 +429,6 @@ export default function CertificateEditorPanel({
                     editor.setField("name", event.target.value)
                   }
                   placeholder="Same as title or custom display name"
-                />
-              </Field>
-              <Field label="Issuer / Platform" error={editor.errors.issuer}>
-                <TextInput
-                  value={editor.form.issuer || ""}
-                  onChange={(event) =>
-                    editor.setField("issuer", event.target.value)
-                  }
-                  placeholder="Meta · Coursera · Google"
                 />
               </Field>
             </div>
@@ -675,9 +664,9 @@ export default function CertificateEditorPanel({
 
           <SectionCard
             label="Images"
-            helper="Upload the certificate image and optional issuer logo."
+            helper="Upload the certificate image for the public card."
           >
-            <div className="grid gap-5 lg:grid-cols-2">
+            <div className="grid gap-5">
               <ImageDropZone
                 label="Certificate Image"
                 helper="Screenshot or scan of your certificate"
@@ -702,32 +691,6 @@ export default function CertificateEditorPanel({
                 accentHex={previewAccent.hex}
                 accentRgb={previewAccent.rgb}
                 icon={<Upload size={18} />}
-              />
-
-              <ImageDropZone
-                label="Issuer Logo"
-                helper="Small logo for the card badge"
-                mode={editor.logoMode}
-                onModeChange={editor.setLogoMode}
-                preview={editor.logoPreview}
-                file={editor.logoFile}
-                onFile={editor.handleLogoFile}
-                onClear={editor.clearLogo}
-                alt={editor.form.issuer}
-                onAltChange={(next) => editor.setField("issuerLogoAlt", next)}
-                url={editor.form.issuerLogo || ""}
-                onUrlChange={(next) => editor.setField("issuerLogo", next)}
-                urlLabel="Issuer Logo URL"
-                fileLabel="Issuer Logo"
-                fileHelper="PNG recommended"
-                fileModeLabel="Use URL instead ↓"
-                urlModeLabel="Use file upload instead ↑"
-                previewFit="contain"
-                maxHeight={100}
-                error={editor.errors.issuerLogo}
-                accentHex={previewAccent.hex}
-                accentRgb={previewAccent.rgb}
-                icon={<Building2 size={18} />}
               />
             </div>
           </SectionCard>

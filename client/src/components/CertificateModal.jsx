@@ -10,7 +10,7 @@ const membershipCertificateImage = new URL(
 ).href;
 
 function resolveCertificateImage(cert) {
-  const isMembershipCertificate = [cert.name, cert.issuer, cert.description]
+  const isMembershipCertificate = [cert.name, cert.description]
     .filter(Boolean)
     .join(" ")
     .toLowerCase()
@@ -61,9 +61,6 @@ export default function CertificateModal({ certificate, onClose }) {
             <h3 className="text-2xl font-bold text-text-primary">
               {certificate.name || "Certificate"}
             </h3>
-            <p className="mt-1 text-sm font-medium text-text-secondary">
-              {certificate.issuer || "Issuer not specified"}
-            </p>
 
             <p className="mt-4 flex-1 text-sm leading-relaxed text-text-secondary">
               {certificate.description ||

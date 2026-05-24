@@ -38,19 +38,6 @@ export default function CertificateHeader({ certificate, accent, index }) {
       <span className="cert-num">
         {certificate.num || String(index + 1).padStart(2, "0")}
       </span>
-
-      <div className="issuer-pill">
-        {certificate.issuerLogo ? (
-          <img
-            src={certificate.issuerLogo}
-            alt={certificate.issuer}
-            className="issuer-logo"
-          />
-        ) : (
-          <Award size={12} className="issuer-icon" />
-        )}
-        <span>{certificate.issuer}</span>
-      </div>
     </header>
   );
 }

@@ -14,8 +14,6 @@ const EMPTY_CERTIFICATE = {
   num: "01",
   title: "",
   name: "",
-  issuer: "",
-  issuerLogo: "",
   description: "",
   icon: "",
   imageUrl: "",
@@ -53,8 +51,6 @@ function normalizeCertificate(certificate) {
     ...base,
     title,
     name: base.name || title,
-    issuer: base.issuer || "",
-    issuerLogo: base.issuerLogo || "",
     description: base.description || "",
     icon: base.icon || "",
     imageUrl: base.imageUrl || base.image || "",
@@ -96,11 +92,8 @@ export default function useCertificateEditor({ initialCertificate, onSaved }) {
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
   const [imageFile, setImageFile] = useState(null);
-  const [logoFile, setLogoFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
-  const [logoPreview, setLogoPreview] = useState("");
   const [imageMode, setImageMode] = useState("file");
-  const [logoMode, setLogoMode] = useState("url");
   const [draftSkill, setDraftSkill] = useState("");
   const [lastSavedAt, setLastSavedAt] = useState("");
   const [urlState, setUrlState] = useState({
@@ -116,11 +109,8 @@ export default function useCertificateEditor({ initialCertificate, onSaved }) {
     setErrors({});
     setSaving(false);
     setImageFile(null);
-    setLogoFile(null);
     setImagePreview("");
-    setLogoPreview("");
     setImageMode(normalized.imageUrl ? "url" : "file");
-    setLogoMode(normalized.issuerLogo ? "url" : "url");
     setDraftSkill("");
     setUrlState({ certificateUrl: true, credentialUrl: true, pdfUrl: true });
     originalRef.current = getOriginalSnapshot(normalized);
@@ -128,10 +118,8 @@ export default function useCertificateEditor({ initialCertificate, onSaved }) {
 
   const isDirty = useMemo(() => {
     const current = getOriginalSnapshot(form);
-    return (
-      current !== originalRef.current || Boolean(imageFile) || Boolean(logoFile)
-    );
-  }, [form, imageFile, logoFile]);
+    return current !== originalRef.current || Boolean(imageFile);
+  }, [form, imageFile]);
 
   const setField = useCallback((key, value) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -160,8 +148,6 @@ export default function useCertificateEditor({ initialCertificate, onSaved }) {
 
     if (!form.title.trim()) nextErrors.title = "Title is required";
     if (form.title.length > 80) nextErrors.title = "Max 80 characters";
-
-    if (!form.issuer.trim()) nextErrors.issuer = "Issuer is required";
     if (!form.description.trim())
       nextErrors.description = "Description is required";
     if (form.description.length > 200)
@@ -223,41 +209,10 @@ export default function useCertificateEditor({ initialCertificate, onSaved }) {
     return { ok: true };
   }, []);
 
-  const handleLogoFile = useCallback((file) => {
-    if (!file) return { ok: false };
-    if (!file.type?.startsWith("image/")) {
-      return {
-        ok: false,
-        message: "Only image files accepted",
-        sizeError: false,
-      };
-    }
-    if (file.size > MAX_LOGO_SIZE) {
-      return {
-        ok: false,
-        message: "File too large · Max 2MB",
-        sizeError: true,
-      };
-    }
-
-    const preview = URL.createObjectURL(file);
-    setLogoFile(file);
-    setLogoPreview(preview);
-    setLogoMode("file");
-    setForm((current) => ({ ...current, issuerLogo: preview }));
-    return { ok: true };
-  }, []);
-
   const clearImage = useCallback(() => {
     setImageFile(null);
     setImagePreview("");
     setForm((current) => ({ ...current, imageUrl: "", image: "" }));
-  }, []);
-
-  const clearLogo = useCallback(() => {
-    setLogoFile(null);
-    setLogoPreview("");
-    setForm((current) => ({ ...current, issuerLogo: "" }));
   }, []);
 
   const reset = useCallback(() => {
@@ -265,9 +220,7 @@ export default function useCertificateEditor({ initialCertificate, onSaved }) {
     setForm(normalized);
     setErrors({});
     setImageFile(null);
-    setLogoFile(null);
     setImagePreview("");
-    setLogoPreview("");
     setDraftSkill("");
     setUrlState({ certificateUrl: true, credentialUrl: true, pdfUrl: true });
     originalRef.current = getOriginalSnapshot(normalized);
@@ -285,9 +238,7 @@ export default function useCertificateEditor({ initialCertificate, onSaved }) {
     originalRef.current = getOriginalSnapshot({});
     setForm(copy);
     setImageFile(null);
-    setLogoFile(null);
     setImagePreview("");
-    setLogoPreview("");
     setDraftSkill("");
     return copy;
   }, [form]);
@@ -300,29 +251,21 @@ export default function useCertificateEditor({ initialCertificate, onSaved }) {
     setSaving(true);
     try {
       let imageUrl = form.imageUrl || form.image || "";
-      let issuerLogo = form.issuerLogo || "";
 
       if (imageFile) {
         const uploadRes = await uploadCertificateImage(imageFile);
         imageUrl = uploadRes.data.imageUrl;
       }
 
-      if (logoFile) {
-        const uploadRes = await uploadCertificateImage(logoFile);
-        issuerLogo = uploadRes.data.imageUrl;
-      }
-
-      const { _id, id, ...restForm } = form;
+      const { _id, id, issuer, issuerLogo, ...restForm } = form;
       const payload = {
         ...restForm,
         title: String(form.title || form.name || "").trim(),
         name: String(form.name || form.title || "").trim(),
-        issuer: String(form.issuer || "").trim(),
         description: String(form.description || "").trim(),
         icon: String(form.icon || "").trim(),
         imageUrl,
         image: imageUrl,
-        issuerLogo,
         imageAlt: String(form.imageAlt || "").trim(),
         pdfUrl: String(form.pdfUrl || "").trim(),
         credentialUrl: String(form.credentialUrl || "").trim(),
@@ -348,9 +291,7 @@ export default function useCertificateEditor({ initialCertificate, onSaved }) {
       const normalized = normalizeCertificate(response.data);
       setForm(normalized);
       setImageFile(null);
-      setLogoFile(null);
       setImagePreview("");
-      setLogoPreview("");
       setSaving(false);
       setLastSavedAt(new Date().toLocaleString());
       originalRef.current = getOriginalSnapshot(normalized);
@@ -368,7 +309,7 @@ export default function useCertificateEditor({ initialCertificate, onSaved }) {
     } finally {
       setSaving(false);
     }
-  }, [form, imageFile, logoFile, onSaved, validate]);
+  }, [form, imageFile, onSaved, validate]);
 
   return {
     form,
@@ -378,21 +319,15 @@ export default function useCertificateEditor({ initialCertificate, onSaved }) {
     saving,
     isDirty,
     imageFile,
-    logoFile,
     imagePreview: imagePreview || form.imageUrl || form.image || "",
-    logoPreview: logoPreview || form.issuerLogo || "",
     imageMode,
     setImageMode,
-    logoMode,
-    setLogoMode,
     draftSkill,
     setDraftSkill,
     addSkill,
     removeSkill,
     handleImageFile,
-    handleLogoFile,
     clearImage,
-    clearLogo,
     validateUrlField,
     reset,
     save,

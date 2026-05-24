@@ -48,7 +48,7 @@ const sectionConfig = {
       ctaPrimaryText: "View My Work",
       ctaSecondaryText: "Let's Talk",
       stats: [
-        { label: "Years freelancing", value: "2+" },
+        { label: "Years freelancing", value: "3+" },
         { label: "Fiverr Seller", value: "Lv2" },
       ],
       socialLinks: {
@@ -127,8 +127,6 @@ const sectionConfig = {
     template: {
       name: "",
       title: "",
-      issuer: "",
-      issuerLogo: "",
       description: "",
       icon: "",
       imageUrl: "",
@@ -369,7 +367,10 @@ export default function AdminSectionManager() {
 
     try {
       const payload = isCertificateSection
-        ? certificateForm
+        ? (() => {
+            const { issuer, issuerLogo, ...rest } = certificateForm;
+            return rest;
+          })()
         : isProjectSection
           ? projectForm
           : parseEditorText(editorText);
@@ -681,11 +682,7 @@ export default function AdminSectionManager() {
                         "Untitled"}
                     </p>
                     <p className="text-xs text-text-secondary mt-1 line-clamp-2">
-                      {item.issuer ||
-                        item.company ||
-                        item.description ||
-                        item.category ||
-                        ""}
+                      {item.description || item.company || item.category || ""}
                     </p>
                   </button>
                 ))}
@@ -732,7 +729,7 @@ export default function AdminSectionManager() {
 
             {isCertificateSection ? (
               <div className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid gap-4 md:grid-cols-2">
                   <label className="space-y-2">
                     <span className="block text-sm font-semibold">Name</span>
                     <input
@@ -767,42 +764,7 @@ export default function AdminSectionManager() {
                   </label>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
-                  <label className="space-y-2">
-                    <span className="block text-sm font-semibold">Issuer</span>
-                    <input
-                      type="text"
-                      value={certificateForm.issuer || ""}
-                      onChange={(e) =>
-                        setCertificateForm((prev) => ({
-                          ...prev,
-                          issuer: e.target.value,
-                        }))
-                      }
-                      className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
-                      placeholder="Meta, Google, freeCodeCamp..."
-                    />
-                  </label>
-                  <label className="space-y-2">
-                    <span className="block text-sm font-semibold">
-                      Issuer Logo URL
-                    </span>
-                    <input
-                      type="text"
-                      value={certificateForm.issuerLogo || ""}
-                      onChange={(e) =>
-                        setCertificateForm((prev) => ({
-                          ...prev,
-                          issuerLogo: e.target.value,
-                        }))
-                      }
-                      className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
-                      placeholder="https://... or /logos/..."
-                    />
-                  </label>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid gap-4 md:grid-cols-2">
                   <label className="space-y-2">
                     <span className="block text-sm font-semibold">
                       Completed Date
@@ -857,7 +819,7 @@ export default function AdminSectionManager() {
                   />
                 </label>
 
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid gap-4 md:grid-cols-2">
                   <label className="space-y-2">
                     <span className="block text-sm font-semibold">Icon</span>
                     <input
@@ -895,7 +857,7 @@ export default function AdminSectionManager() {
                   </label>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid gap-4 md:grid-cols-2">
                   <label className="space-y-2">
                     <span className="block text-sm font-semibold">
                       Image URL
@@ -939,14 +901,13 @@ export default function AdminSectionManager() {
                       >
                         Choose file
                       </button>
-                      {certificateUploading && (
+                      {certificateUploading ? (
                         <span className="text-sm text-text-secondary">
                           Uploading...
                         </span>
-                      )}
+                      ) : null}
                     </div>
                   </label>
-
                   <label className="space-y-2">
                     <span className="block text-sm font-semibold">
                       Image Alt Text
@@ -966,7 +927,7 @@ export default function AdminSectionManager() {
                   </label>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid gap-4 md:grid-cols-2">
                   <label className="space-y-2">
                     <span className="block text-sm font-semibold">
                       Certificate URL
@@ -1008,78 +969,6 @@ export default function AdminSectionManager() {
                         Mark as verified
                       </span>
                     </div>
-                  </label>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-4">
-                  <label className="space-y-2">
-                    <span className="block text-sm font-semibold">
-                      Accent Color
-                    </span>
-                    <select
-                      value={certificateForm.accent || "green"}
-                      onChange={(e) =>
-                        setCertificateForm((prev) => ({
-                          ...prev,
-                          accent: e.target.value,
-                        }))
-                      }
-                      className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
-                    >
-                      <option value="green">Green</option>
-                      <option value="blue">Blue</option>
-                      <option value="pink">Pink</option>
-                      <option value="purple">Purple</option>
-                    </select>
-                  </label>
-                  <label className="space-y-2">
-                    <span className="block text-sm font-semibold">Order</span>
-                    <input
-                      type="number"
-                      value={certificateForm.order ?? 0}
-                      onChange={(e) =>
-                        setCertificateForm((prev) => ({
-                          ...prev,
-                          order: Number(e.target.value),
-                        }))
-                      }
-                      className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
-                    />
-                  </label>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-4">
-                  <label className="space-y-2">
-                    <span className="block text-sm font-semibold">PDF URL</span>
-                    <input
-                      type="text"
-                      value={certificateForm.pdfUrl || ""}
-                      onChange={(e) =>
-                        setCertificateForm((prev) => ({
-                          ...prev,
-                          pdfUrl: e.target.value,
-                        }))
-                      }
-                      className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
-                      placeholder="https://... or /certificates/file.pdf"
-                    />
-                  </label>
-                  <label className="space-y-2">
-                    <span className="block text-sm font-semibold">
-                      Credential URL
-                    </span>
-                    <input
-                      type="text"
-                      value={certificateForm.credentialUrl || ""}
-                      onChange={(e) =>
-                        setCertificateForm((prev) => ({
-                          ...prev,
-                          credentialUrl: e.target.value,
-                        }))
-                      }
-                      className="w-full rounded-xl border border-white/10 bg-canvas/30 px-4 py-3 outline-none focus:border-accent/50"
-                      placeholder="https://..."
-                    />
                   </label>
                 </div>
 

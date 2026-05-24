@@ -35,8 +35,6 @@ function normalizeCertificate(certificate, index) {
       ? accentKey
       : accentCycle[index % accentCycle.length],
     title,
-    issuer: certificate.issuer || "",
-    issuerLogo: certificate.issuerLogo || "",
     image: certificate.image || certificate.imageUrl || "",
     completedDate: certificate.completedDate || certificate.date || "",
     credentialId: certificate.credentialId || "",

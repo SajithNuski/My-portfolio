@@ -108,9 +108,6 @@ export default function CertificateItemCard({
           >
             {certificate.title || certificate.name || "Untitled Certificate"}
           </p>
-          <p className="mt-1 truncate text-[11px] text-white/45">
-            {certificate.issuer || "Issuer"}
-          </p>
         </div>
 
         <div className="flex shrink-0 flex-col items-end gap-2 pl-1 pt-0.5">

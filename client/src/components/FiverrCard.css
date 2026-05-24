@@ -1,0 +1,321 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap");
+
+@supports (property(--a)) {
+  @property --a {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+  }
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes orbPulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.22);
+  }
+}
+
+@keyframes logoIn {
+  from {
+    opacity: 0;
+    transform: scale(0.65) rotate(-12deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes spinBorder {
+  to {
+    --a: 360deg;
+  }
+}
+
+@keyframes sdotBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+.fiverr-card {
+  position: relative;
+  width: min(100%, 320px);
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: default;
+  font-family: "DM Sans", sans-serif;
+  background: linear-gradient(135deg, #0b1018 0%, #0f1c2a 60%, #0b1018 100%);
+  box-shadow:
+    0 0 0 1px rgba(74, 222, 128, 0.1),
+    0 20px 60px rgba(0, 0, 0, 0.6);
+  transform: translateZ(0);
+  transition:
+    transform 0.35s cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+  animation: cardIn 0.6s cubic-bezier(0.23, 1, 0.32, 1) both;
+  isolation: isolate;
+}
+
+.fiverr-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 0 0 1px rgba(74, 222, 128, 0.25),
+    0 28px 70px rgba(0, 0, 0, 0.7),
+    0 0 50px rgba(74, 222, 128, 0.06) inset;
+}
+
+.fiverr-card__dot-grid,
+.fiverr-card__orb,
+.fiverr-card__border {
+  position: absolute;
+  pointer-events: none;
+}
+
+.fiverr-card__dot-grid {
+  inset: 0;
+  background-image: radial-gradient(
+    rgba(74, 222, 128, 0.07) 1px,
+    transparent 1px
+  );
+  background-size: 20px 20px;
+  z-index: 0;
+}
+
+.fiverr-card__orb {
+  border-radius: 50%;
+  filter: blur(18px);
+}
+
+.fiverr-card__orb--top {
+  top: -35px;
+  right: -35px;
+  width: 130px;
+  height: 130px;
+  background: radial-gradient(
+    circle,
+    rgba(74, 222, 128, 0.18) 0%,
+    transparent 70%
+  );
+  animation: orbPulse 4s ease-in-out infinite;
+  z-index: 0;
+}
+
+.fiverr-card__orb--bottom {
+  bottom: -40px;
+  left: -20px;
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(
+    circle,
+    rgba(74, 222, 128, 0.1) 0%,
+    transparent 70%
+  );
+  filter: blur(22px);
+  animation: orbPulse 5s ease-in-out 1s infinite;
+  z-index: 0;
+}
+
+.fiverr-card__border {
+  inset: 0;
+  border-radius: 20px;
+  padding: 1px;
+  z-index: 1;
+  background: conic-gradient(
+    from var(--a, 0deg),
+    transparent 0deg,
+    rgba(74, 222, 128, 0.7) 60deg,
+    transparent 120deg
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: spinBorder 4s linear infinite;
+}
+
+.fiverr-card__content {
+  position: relative;
+  z-index: 2;
+}
+
+.fiverr-card__header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.fiverr-card__logo {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: #1dbf73;
+  box-shadow: 0 4px 18px rgba(29, 191, 115, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  animation: logoIn 0.5s cubic-bezier(0.23, 1, 0.32, 1) 0.15s both;
+}
+
+.fiverr-card__header-copy {
+  animation: slideInRight 0.4s cubic-bezier(0.23, 1, 0.32, 1) 0.25s both;
+}
+
+.fiverr-card__badge-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.fiverr-card__badge {
+  font-family: "Space Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.fiverr-card__title {
+  margin: 0;
+  color: #f1f5f9;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.fiverr-card__stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 16px 20px;
+}
+
+.fiverr-card__stat {
+  position: relative;
+  overflow: hidden;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.fiverr-card__stat::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 32px;
+  height: 2px;
+  background: linear-gradient(90deg, #4ade80, transparent);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.fiverr-card__stat:hover {
+  background: rgba(74, 222, 128, 0.05);
+  border-color: rgba(74, 222, 128, 0.22);
+}
+
+.fiverr-card__stat:hover::after {
+  opacity: 1;
+}
+
+.fiverr-card__stat-label {
+  display: block;
+  margin-bottom: 8px;
+  color: rgba(255, 255, 255, 0.32);
+  font-family: "Space Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+
+.fiverr-card__stat-value {
+  display: block;
+  color: #4ade80;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.fv-sdot {
+  display: inline-block;
+  border-radius: 50%;
+  background: #4ade80;
+  animation: sdotBlink 2s infinite;
+}
+
+.fv-sdot--small {
+  width: 5px;
+  height: 5px;
+}
+
+@media (max-width: 639px) {
+  .fiverr-card {
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  .fiverr-card:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fiverr-card,
+  .fiverr-card__logo,
+  .fiverr-card__header-copy,
+  .fiverr-card__orb--top,
+  .fiverr-card__orb--bottom,
+  .fiverr-card__border,
+  .fv-sdot {
+    animation: none !important;
+  }
+
+  .fiverr-card,
+  .fiverr-card__stat {
+    transition: none;
+  }
+}

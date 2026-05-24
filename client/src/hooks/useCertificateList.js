@@ -33,8 +33,6 @@ function normalizeCertificate(certificate, index = 0) {
         : String(index + 1).padStart(2, "0")),
     title,
     name: certificate.name || title,
-    issuer: certificate.issuer || "",
-    issuerLogo: certificate.issuerLogo || "",
     imageUrl: certificate.imageUrl || certificate.image || "",
     image: certificate.image || certificate.imageUrl || "",
     imageAlt: certificate.imageAlt || "",

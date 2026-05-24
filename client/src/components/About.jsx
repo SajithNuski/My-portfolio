@@ -73,8 +73,7 @@ export default function About() {
             About <span className="text-accent">Me</span>
           </h2>
           <p className="text-text-secondary text-lg max-w-2xl mx-auto">
-            I'm a frontend developer passionate about creating digital
-            experiences
+            Creative Developer & Digital Experience Designer
           </p>
         </motion.div>
 
@@ -84,27 +83,34 @@ export default function About() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="grid md:grid-cols-2 gap-12 mb-16 items-center"
+          className="grid md:grid-cols-[1.1fr_0.9fr] gap-12 mb-16 items-center"
         >
           {/* Text Content */}
           <div>
             <p className="text-text-secondary text-lg leading-relaxed mb-6">
-              I'm Mohamed Sajith Nuski, a frontend developer and creative
-              technologist based in Sri Lanka. I specialize in building modern,
-              responsive web applications using React, Tailwind CSS, and other
-              cutting-edge technologies.
+              I'm a multidisciplinary designer and developer who sits
+              comfortably at the intersection of creativity and code. I don't
+              just make things look good — I make them work.
             </p>
             <p className="text-text-secondary text-lg leading-relaxed mb-6">
-              With over 2+ years of freelancing experience, I've worked with
-              clients from around the world to bring their ideas to life. I'm
-              currently pursuing a degree in Industrial Information Technology
-              at Uva Wellassa University while continuously honing my full-stack
-              development skills.
+              Over the past 3+ years, I've partnered with businesses and
+              individuals across industries to build brands, design interfaces,
+              and develop web applications that drive real results. From
+              early-stage startups needing a brand identity to established
+              businesses looking to modernize their digital presence, I bring
+              both the creative vision and the technical execution.
             </p>
             <p className="text-text-secondary text-lg leading-relaxed">
-              When I'm not coding, you'll find me exploring new design trends,
-              contributing to open-source projects, or sharing knowledge with
-              the developer community.
+              My stack spans the full product lifecycle — from wireframes and
+              visual identity to production-ready React applications and REST
+              APIs. I believe great digital products come from understanding
+              both the user and the business, then building something that
+              serves both.
+            </p>
+            <p className="text-text-secondary text-lg leading-relaxed">
+              When I'm not freelancing, I'm studying, building side projects,
+              and staying current with the tools and patterns shaping modern web
+              development.
             </p>
           </div>
 
@@ -112,7 +118,7 @@ export default function About() {
           <motion.div
             whileHover={{ scale: 1.02 }}
             transition={{ duration: 0.3 }}
-            className="relative group"
+            className="relative group w-full max-w-[520px] justify-self-end"
           >
             {/* Glass effect background */}
             <div className="absolute inset-0 bg-gradient-to-br from-accent/20 to-blue/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -162,7 +168,7 @@ export default function About() {
               {/* Stats */}
               <div className="grid grid-cols-2 gap-4 mt-8 pt-8 border-t border-white/10">
                 <div>
-                  <p className="text-3xl font-bold text-accent">2+</p>
+                  <p className="text-3xl font-bold text-accent">3+</p>
                   <p className="text-text-secondary text-sm">
                     Years Experience
                   </p>

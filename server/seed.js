@@ -38,7 +38,7 @@ const seedDB = async () => {
       ctaPrimaryText: "View My Work",
       ctaSecondaryText: "Let's Talk",
       stats: [
-        { label: "Years freelancing", value: "2+" },
+        { label: "Years freelancing", value: "3+" },
         { label: "Fiverr Seller", value: "Lv2" },
         { label: "Certificates", value: "5+" },
         { label: "Clients served", value: "🌍" },

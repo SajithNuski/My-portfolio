@@ -3,12 +3,56 @@ import { ArrowRight, Github, Linkedin, Mail } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { fetchHero } from "../api/index.js";
+import FiverrCard from "./FiverrCard.jsx";
 import profileImg from "../assets/nuski.png";
 
 export default function Hero() {
   const [hero, setHero] = useState(null);
   const [loading, setLoading] = useState(true);
-  const fiverrLogo = "https://cdn.simpleicons.org/fiverr/1DBF73";
+
+  function renderHighlightedTitle(title) {
+    if (!title || typeof title !== "string") return title;
+
+    const targets = [
+      { text: "Creative Developer", className: "text-accent" },
+      { text: "Digital Experience Designer", className: "text-blue" },
+      { text: "Creative Designer", className: "text-pink" },
+    ];
+
+    const parts = [];
+    let cursor = 0;
+    while (cursor < title.length) {
+      // find earliest next match
+      let nextIndex = -1;
+      let nextTarget = null;
+      for (const t of targets) {
+        const idx = title.indexOf(t.text, cursor);
+        if (idx !== -1 && (nextIndex === -1 || idx < nextIndex)) {
+          nextIndex = idx;
+          nextTarget = t;
+        }
+      }
+
+      if (nextIndex === -1) {
+        parts.push(title.slice(cursor));
+        break;
+      }
+
+      if (nextIndex > cursor) parts.push(title.slice(cursor, nextIndex));
+
+      parts.push(
+        React.createElement(
+          "span",
+          { className: nextTarget.className, key: nextIndex },
+          nextTarget.text,
+        ),
+      );
+
+      cursor = nextIndex + nextTarget.text.length;
+    }
+
+    return parts.map((p, i) => (typeof p === "string" ? p : p));
+  }
   const viewWorkLink = "https://www.fiverr.com/s/gD055xE";
   const githubProfileLink = "https://github.com/SajithNuski";
   const linkedinProfileLink =
@@ -52,9 +96,9 @@ export default function Hero() {
               {hero.name}
             </h1>
 
-            {/* Title */}
+            {/* Title with highlighted roles */}
             <p className="text-xl md:text-2xl text-text-secondary font-head mb-6">
-              {hero.title}
+              {renderHighlightedTitle(hero.title)}
             </p>
 
             {/* Description */}
@@ -62,43 +106,8 @@ export default function Hero() {
               {hero.description}
             </p>
 
-            {/* Fiverr Highlight Card */}
-            <div className="relative group mb-12">
-              <div className="absolute inset-0 bg-gradient-to-br from-accent/15 to-blue/10 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative bg-overlay/40 backdrop-blur-lg border border-white/10 rounded-2xl p-6 hover:border-accent/50 transition group-hover:scale-[1.01]">
-                <div className="flex items-center gap-4 mb-5">
-                  <div className="w-20 h-20 rounded-2xl bg-canvas/70 border border-white/10 flex items-center justify-center shadow-lg">
-                    <img
-                      src={fiverrLogo}
-                      alt="Fiverr logo"
-                      className="w-14 h-14 object-contain"
-                    />
-                  </div>
-                  <div>
-                    <p className="text-text-secondary text-sm uppercase tracking-[0.2em]">
-                      Fiverr Seller
-                    </p>
-                    <h3 className="text-2xl font-bold text-text-primary">
-                      Level 2 Seller
-                    </h3>
-                  </div>
-                </div>
-
-                <div className="rounded-xl border border-white/10 bg-canvas/30 p-4">
-                  <div className="flex flex-wrap items-center gap-6">
-                    {hero.stats?.map((stat, idx) => (
-                      <div key={idx} className="min-w-[140px]">
-                        <p className="text-text-secondary text-sm">
-                          {stat.label}
-                        </p>
-                        <p className="text-xl font-bold text-accent mt-2">
-                          {stat.value}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+            <div className="mb-12 flex justify-center md:justify-start">
+              <FiverrCard />
             </div>
 
             {/* CTA Buttons */}

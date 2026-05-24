@@ -17,8 +17,6 @@ function createBlankCertificate() {
     num: "01",
     title: "",
     name: "",
-    issuer: "",
-    issuerLogo: "",
     description: "",
     icon: "",
     imageUrl: "",

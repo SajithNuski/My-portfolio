@@ -22,6 +22,8 @@
   /* Blue accent — links */
   --blue: #58a6ff;
   --blue-dim: rgba(88, 166, 255, 0.12);
+  /* Pink accent for role highlighting */
+  --pink: #ff6ea1;
 
   /* Border */
   --border: #30363d;
@@ -110,4 +112,12 @@ pre {
 
 .code-float {
   animation: codeFloat 10s ease-in-out infinite;
+}
+
+/* Small helper utilities for role highlighting used in Hero */
+.text-pink {
+  color: var(--pink);
+}
+.text-blue {
+  color: var(--blue);
 }

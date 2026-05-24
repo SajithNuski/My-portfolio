@@ -5,7 +5,6 @@ export default function CertificateBody({ certificate }) {
   return (
     <div className="cert-body">
       <h3 className="cert-title">{certificate.title}</h3>
-      <p className="cert-issuer-full">{certificate.issuer}</p>
 
       <div className="cert-meta">
         <div className="cert-meta-item">
