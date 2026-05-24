@@ -148,7 +148,7 @@ export default function About() {
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-accent rounded-full"></div>
                   <p className="text-text-primary font-semibold">
-                    Frontend Developer
+                    Full-stack Developer
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -174,7 +174,7 @@ export default function About() {
                   </p>
                 </div>
                 <div>
-                  <p className="text-3xl font-bold text-blue">50+</p>
+                  <p className="text-3xl font-bold text-blue">200+</p>
                   <p className="text-text-secondary text-sm">
                     Projects Completed
                   </p>
