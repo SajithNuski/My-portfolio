@@ -1,5 +1,39 @@
 import Project from "../models/Project.js";
 
+const normalizePublicBaseUrl = (baseUrl = "") => {
+  const value = String(baseUrl || "").trim();
+  if (!value) return "";
+  const withProtocol = /^https?:\/\//i.test(value) ? value : `https://${value}`;
+  return withProtocol.replace(/\/+$/, "");
+};
+
+const withPublicUploadUrl = (value, baseUrl) => {
+  if (typeof value !== "string") return value;
+  const publicBaseUrl = normalizePublicBaseUrl(baseUrl);
+  if (!publicBaseUrl) return value;
+  return value.replace(
+    /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/uploads\//i,
+    `${publicBaseUrl}/uploads/`,
+  );
+};
+
+const mapProjectPublicUrls = (project, baseUrl) => {
+  const doc =
+    project && typeof project.toObject === "function"
+      ? project.toObject()
+      : project;
+  if (!doc) return doc;
+
+  const thumbnail = withPublicUploadUrl(doc.thumbnail, baseUrl);
+  const imageUrl = withPublicUploadUrl(doc.imageUrl, baseUrl);
+
+  return {
+    ...doc,
+    thumbnail,
+    imageUrl,
+  };
+};
+
 const normalizeProjectPayload = (payload = {}) => {
   const normalized = { ...payload };
   const accent = String(normalized.accent || "green")
@@ -90,7 +124,11 @@ const normalizeProjectPayload = (payload = {}) => {
 export const getProjects = async (req, res) => {
   try {
     const projects = await Project.find().sort({ order: 1 });
-    res.json(projects);
+    const publicBaseUrl =
+      process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get("host")}`;
+    res.json(
+      projects.map((project) => mapProjectPublicUrls(project, publicBaseUrl)),
+    );
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -100,7 +138,9 @@ export const createProject = async (req, res) => {
   try {
     const project = new Project(normalizeProjectPayload(req.body));
     await project.save();
-    res.status(201).json(project);
+    const publicBaseUrl =
+      process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get("host")}`;
+    res.status(201).json(mapProjectPublicUrls(project, publicBaseUrl));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -115,7 +155,9 @@ export const updateProject = async (req, res) => {
         new: true,
       },
     );
-    res.json(project);
+    const publicBaseUrl =
+      process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get("host")}`;
+    res.json(mapProjectPublicUrls(project, publicBaseUrl));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -138,7 +180,9 @@ export const toggleProjectVisibility = async (req, res) => {
     project.featured = nextVisible;
 
     await project.save();
-    res.json(project);
+    const publicBaseUrl =
+      process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get("host")}`;
+    res.json(mapProjectPublicUrls(project, publicBaseUrl));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -166,7 +210,11 @@ export const reorderProjects = async (req, res) => {
     }
 
     const projects = await Project.find().sort({ order: 1, createdAt: -1 });
-    res.json(projects);
+    const publicBaseUrl =
+      process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get("host")}`;
+    res.json(
+      projects.map((project) => mapProjectPublicUrls(project, publicBaseUrl)),
+    );
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

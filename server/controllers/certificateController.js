@@ -1,6 +1,40 @@
 import mongoose from "mongoose";
 import Certificate from "../models/Certificate.js";
 
+const normalizePublicBaseUrl = (baseUrl = "") => {
+  const value = String(baseUrl || "").trim();
+  if (!value) return "";
+  const withProtocol = /^https?:\/\//i.test(value) ? value : `https://${value}`;
+  return withProtocol.replace(/\/+$/, "");
+};
+
+const withPublicUploadUrl = (value, baseUrl) => {
+  if (typeof value !== "string") return value;
+  const publicBaseUrl = normalizePublicBaseUrl(baseUrl);
+  if (!publicBaseUrl) return value;
+  return value.replace(
+    /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/uploads\//i,
+    `${publicBaseUrl}/uploads/`,
+  );
+};
+
+const mapCertificatePublicUrls = (certificate, baseUrl) => {
+  const doc =
+    certificate && typeof certificate.toObject === "function"
+      ? certificate.toObject()
+      : certificate;
+  if (!doc) return doc;
+
+  const imageUrl = withPublicUploadUrl(doc.imageUrl, baseUrl);
+  const image = withPublicUploadUrl(doc.image, baseUrl);
+
+  return {
+    ...doc,
+    imageUrl,
+    image,
+  };
+};
+
 const isValidCertificateId = (id) => mongoose.isValidObjectId(id);
 
 const normalizeCertificatePayload = (payload = {}) => {
@@ -62,7 +96,13 @@ export const getCertificates = async (req, res) => {
       order: 1,
       createdAt: 1,
     });
-    res.json(certificates);
+    const publicBaseUrl =
+      process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get("host")}`;
+    res.json(
+      certificates.map((certificate) =>
+        mapCertificatePublicUrls(certificate, publicBaseUrl),
+      ),
+    );
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -72,7 +112,9 @@ export const createCertificate = async (req, res) => {
   try {
     const certificate = new Certificate(normalizeCertificatePayload(req.body));
     await certificate.save();
-    res.status(201).json(certificate);
+    const publicBaseUrl =
+      process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get("host")}`;
+    res.status(201).json(mapCertificatePublicUrls(certificate, publicBaseUrl));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -89,7 +131,9 @@ export const updateCertificate = async (req, res) => {
       normalizeCertificatePayload(req.body),
       { new: true },
     );
-    res.json(certificate);
+    const publicBaseUrl =
+      process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get("host")}`;
+    res.json(mapCertificatePublicUrls(certificate, publicBaseUrl));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -107,7 +151,9 @@ export const toggleCertificateVisibility = async (req, res) => {
       { new: true },
     );
 
-    res.json(certificate);
+    const publicBaseUrl =
+      process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get("host")}`;
+    res.json(mapCertificatePublicUrls(certificate, publicBaseUrl));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -130,7 +176,13 @@ export const reorderCertificates = async (req, res) => {
       order: 1,
       createdAt: 1,
     });
-    res.json(certificates);
+    const publicBaseUrl =
+      process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get("host")}`;
+    res.json(
+      certificates.map((certificate) =>
+        mapCertificatePublicUrls(certificate, publicBaseUrl),
+      ),
+    );
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

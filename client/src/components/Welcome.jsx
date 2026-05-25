@@ -88,7 +88,7 @@ export default function Welcome() {
           whileInView={{ scaleX: 1 }}
           transition={{ duration: 1, ease: "easeOut" }}
           viewport={{ once: true }}
-          className="mt-40 h-1 bg-gradient-to-r from-transparent via-accent to-transparent rounded-full"
+          className="mt-28 h-1 bg-gradient-to-r from-transparent via-accent to-transparent rounded-full"
         />
       </motion.div>
     </section>

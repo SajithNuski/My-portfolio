@@ -21,12 +21,29 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+app.set("trust proxy", 1);
+
+const configuredOrigins = (
+  process.env.CORS_ORIGINS ||
+  process.env.FRONTEND_URL ||
+  ""
+)
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const localhostRegex = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
+const vercelPreviewRegex = /^https:\/\/[a-z0-9-]+\.vercel\.app$/i;
+
 // Middleware
 app.use(
   cors({
     origin: (origin, callback) => {
       const allowed =
-        !origin || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+        !origin ||
+        localhostRegex.test(origin) ||
+        configuredOrigins.includes(origin) ||
+        vercelPreviewRegex.test(origin);
 
       callback(null, allowed ? true : false);
     },
