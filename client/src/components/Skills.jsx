@@ -49,6 +49,8 @@ const getSkillLogo = (skillName) => {
       "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg",
     Python:
       "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg",
+    PHP: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/php/php-original.svg",
+    Php: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/php/php-original.svg",
     Java: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg",
     Node: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg",
     "Node.js":
@@ -90,13 +92,38 @@ const REQUIRED_FRAMEWORK_SKILLS = [
   "Next.js",
   "Tailwind CSS",
   "Express.js",
-  "React Native",
 ];
+
+const REQUIRED_LANGUAGE_SKILLS = ["PHP"];
+
+const HIDDEN_TOOL_SKILLS = new Set(["git"]);
+
+function normalizeSkillName(value) {
+  return String(value || "").trim();
+}
+
+function getCategoryKey(category) {
+  return String(category || "").trim().toLowerCase();
+}
+
+function upsertSkills(group, requiredSkills) {
+  const existingSkills = Array.isArray(group.skills) ? group.skills : [];
+  const existingNames = new Set(existingSkills.map((skill) => normalizeSkillName(skill?.name)));
+  const mergedSkills = [...existingSkills];
+
+  requiredSkills.forEach((name) => {
+    if (!existingNames.has(name)) {
+      mergedSkills.push({ name, primary: true });
+    }
+  });
+
+  return mergedSkills;
+}
 
 function ensureFrameworkCard(skillGroups) {
   const groups = Array.isArray(skillGroups) ? skillGroups : [];
   const frameworkIndex = groups.findIndex((group) => {
-    const category = String(group?.category || "").trim().toLowerCase();
+    const category = getCategoryKey(group?.category);
     return category === "frameworks" || category.includes("framework");
   });
 
@@ -115,23 +142,66 @@ function ensureFrameworkCard(skillGroups) {
   }
 
   const frameworkGroup = groups[frameworkIndex];
-  const existingSkills = Array.isArray(frameworkGroup.skills)
+  const filteredSkills = (Array.isArray(frameworkGroup.skills)
     ? frameworkGroup.skills
-    : [];
-  const existingNames = new Set(
-    existingSkills.map((skill) => String(skill?.name || "").trim()),
-  );
-
-  const mergedSkills = [...existingSkills];
-  REQUIRED_FRAMEWORK_SKILLS.forEach((name) => {
-    if (!existingNames.has(name)) {
-      mergedSkills.push({ name, primary: true });
-    }
-  });
+    : []
+  ).filter((skill) => normalizeSkillName(skill?.name).toLowerCase() !== "react native");
+  const mergedSkills = upsertSkills({ ...frameworkGroup, skills: filteredSkills }, REQUIRED_FRAMEWORK_SKILLS);
 
   return groups.map((group, index) =>
     index === frameworkIndex ? { ...group, skills: mergedSkills } : group,
   );
+}
+
+function ensureLanguagesCard(skillGroups) {
+  const groups = Array.isArray(skillGroups) ? skillGroups : [];
+  const languagesIndex = groups.findIndex((group) => {
+    const category = getCategoryKey(group?.category);
+    return category === "languages" || category.includes("language");
+  });
+
+  if (languagesIndex === -1) {
+    return [
+      ...groups,
+      {
+        category: "Languages",
+        icon: "code",
+        skills: REQUIRED_LANGUAGE_SKILLS.map((name) => ({
+          name,
+          primary: true,
+        })),
+      },
+    ];
+  }
+
+  const languagesGroup = groups[languagesIndex];
+  const mergedSkills = upsertSkills(languagesGroup, REQUIRED_LANGUAGE_SKILLS);
+
+  return groups.map((group, index) =>
+    index === languagesIndex ? { ...group, skills: mergedSkills } : group,
+  );
+}
+
+function removeGitFromTools(skillGroups) {
+  const groups = Array.isArray(skillGroups) ? skillGroups : [];
+  return groups.map((group) => {
+    const category = getCategoryKey(group?.category);
+    if (category !== "tools" && !category.includes("tool")) {
+      return group;
+    }
+
+    const filteredSkills = (Array.isArray(group.skills) ? group.skills : []).filter(
+      (skill) => !HIDDEN_TOOL_SKILLS.has(normalizeSkillName(skill?.name).toLowerCase()),
+    );
+
+    return { ...group, skills: filteredSkills };
+  });
+}
+
+function normalizeSkillGroups(skillGroups) {
+  const withFrameworks = ensureFrameworkCard(skillGroups);
+  const withLanguages = ensureLanguagesCard(withFrameworks);
+  return removeGitFromTools(withLanguages);
 }
 
 export default function Skills() {
@@ -141,7 +211,7 @@ export default function Skills() {
   useEffect(() => {
     fetchSkills()
       .then((res) => {
-        setSkills(ensureFrameworkCard(res.data));
+        setSkills(normalizeSkillGroups(res.data));
         setLoading(false);
       })
       .catch((err) => {
