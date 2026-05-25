@@ -5,12 +5,12 @@ import Home from "./pages/Home.jsx";
 
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin.jsx"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard.jsx"));
-const AdminSectionManager = lazy(() =>
-  import("./pages/admin/AdminSectionManager.jsx"),
+const AdminSectionManager = lazy(
+  () => import("./pages/admin/AdminSectionManager.jsx"),
 );
 const AdminProjects = lazy(() => import("./pages/admin/AdminProjects.jsx"));
-const AdminCertificates = lazy(() =>
-  import("./pages/admin/AdminCertificates.jsx"),
+const AdminCertificates = lazy(
+  () => import("./pages/admin/AdminCertificates.jsx"),
 );
 const ProjectDetails = lazy(() => import("./pages/ProjectDetails.jsx"));
 

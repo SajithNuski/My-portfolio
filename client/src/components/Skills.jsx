@@ -88,11 +88,7 @@ const getSkillLogo = (skillName) => {
   return logoMap[skillName] || null;
 };
 
-const REQUIRED_FRAMEWORK_SKILLS = [
-  "Next.js",
-  "Tailwind CSS",
-  "Express.js",
-];
+const REQUIRED_FRAMEWORK_SKILLS = ["Next.js", "Tailwind CSS", "Express.js"];
 
 const REQUIRED_LANGUAGE_SKILLS = ["PHP"];
 
@@ -103,12 +99,16 @@ function normalizeSkillName(value) {
 }
 
 function getCategoryKey(category) {
-  return String(category || "").trim().toLowerCase();
+  return String(category || "")
+    .trim()
+    .toLowerCase();
 }
 
 function upsertSkills(group, requiredSkills) {
   const existingSkills = Array.isArray(group.skills) ? group.skills : [];
-  const existingNames = new Set(existingSkills.map((skill) => normalizeSkillName(skill?.name)));
+  const existingNames = new Set(
+    existingSkills.map((skill) => normalizeSkillName(skill?.name)),
+  );
   const mergedSkills = [...existingSkills];
 
   requiredSkills.forEach((name) => {
@@ -142,11 +142,15 @@ function ensureFrameworkCard(skillGroups) {
   }
 
   const frameworkGroup = groups[frameworkIndex];
-  const filteredSkills = (Array.isArray(frameworkGroup.skills)
-    ? frameworkGroup.skills
-    : []
-  ).filter((skill) => normalizeSkillName(skill?.name).toLowerCase() !== "react native");
-  const mergedSkills = upsertSkills({ ...frameworkGroup, skills: filteredSkills }, REQUIRED_FRAMEWORK_SKILLS);
+  const filteredSkills = (
+    Array.isArray(frameworkGroup.skills) ? frameworkGroup.skills : []
+  ).filter(
+    (skill) => normalizeSkillName(skill?.name).toLowerCase() !== "react native",
+  );
+  const mergedSkills = upsertSkills(
+    { ...frameworkGroup, skills: filteredSkills },
+    REQUIRED_FRAMEWORK_SKILLS,
+  );
 
   return groups.map((group, index) =>
     index === frameworkIndex ? { ...group, skills: mergedSkills } : group,
@@ -190,8 +194,11 @@ function removeGitFromTools(skillGroups) {
       return group;
     }
 
-    const filteredSkills = (Array.isArray(group.skills) ? group.skills : []).filter(
-      (skill) => !HIDDEN_TOOL_SKILLS.has(normalizeSkillName(skill?.name).toLowerCase()),
+    const filteredSkills = (
+      Array.isArray(group.skills) ? group.skills : []
+    ).filter(
+      (skill) =>
+        !HIDDEN_TOOL_SKILLS.has(normalizeSkillName(skill?.name).toLowerCase()),
     );
 
     return { ...group, skills: filteredSkills };
