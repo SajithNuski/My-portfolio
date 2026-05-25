@@ -57,6 +57,8 @@ const getSkillLogo = (skillName) => {
       "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg",
     Express:
       "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/express/express-original.svg",
+    "Express.js":
+      "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/express/express-original.svg",
     MongoDB:
       "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mongodb/mongodb-original.svg",
     PostgreSQL:
@@ -84,6 +86,54 @@ const getSkillLogo = (skillName) => {
   return logoMap[skillName] || null;
 };
 
+const REQUIRED_FRAMEWORK_SKILLS = [
+  "Next.js",
+  "Tailwind CSS",
+  "Express.js",
+  "React Native",
+];
+
+function ensureFrameworkCard(skillGroups) {
+  const groups = Array.isArray(skillGroups) ? skillGroups : [];
+  const frameworkIndex = groups.findIndex((group) => {
+    const category = String(group?.category || "").trim().toLowerCase();
+    return category === "frameworks" || category.includes("framework");
+  });
+
+  if (frameworkIndex === -1) {
+    return [
+      ...groups,
+      {
+        category: "Frameworks",
+        icon: "layers",
+        skills: REQUIRED_FRAMEWORK_SKILLS.map((name) => ({
+          name,
+          primary: true,
+        })),
+      },
+    ];
+  }
+
+  const frameworkGroup = groups[frameworkIndex];
+  const existingSkills = Array.isArray(frameworkGroup.skills)
+    ? frameworkGroup.skills
+    : [];
+  const existingNames = new Set(
+    existingSkills.map((skill) => String(skill?.name || "").trim()),
+  );
+
+  const mergedSkills = [...existingSkills];
+  REQUIRED_FRAMEWORK_SKILLS.forEach((name) => {
+    if (!existingNames.has(name)) {
+      mergedSkills.push({ name, primary: true });
+    }
+  });
+
+  return groups.map((group, index) =>
+    index === frameworkIndex ? { ...group, skills: mergedSkills } : group,
+  );
+}
+
 export default function Skills() {
   const [skills, setSkills] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -91,7 +141,7 @@ export default function Skills() {
   useEffect(() => {
     fetchSkills()
       .then((res) => {
-        setSkills(res.data);
+        setSkills(ensureFrameworkCard(res.data));
         setLoading(false);
       })
       .catch((err) => {
