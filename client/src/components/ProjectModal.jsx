@@ -27,7 +27,7 @@ export default function ProjectModal({ project, onClose }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6"
+      className="fixed inset-0 z-[70] flex items-center justify-center p-4 md:p-6"
     >
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
 
@@ -47,7 +47,7 @@ export default function ProjectModal({ project, onClose }) {
 
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/30 text-white transition hover:bg-black/50"
+          className="absolute top-4 right-4 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/30 text-white transition hover:bg-black/50"
           aria-label="Close project modal"
         >
           ×
@@ -89,11 +89,15 @@ export default function ProjectModal({ project, onClose }) {
               </div>
               <div className="flex items-start justify-between">
                 <span className="text-sm text-text-secondary">Languages:</span>
-                <span className="text-sm">{(project.techStack || []).join(", ") || "—"}</span>
+                <span className="text-sm">
+                  {(project.techStack || []).join(", ") || "—"}
+                </span>
               </div>
               <div className="flex items-start justify-between">
                 <span className="text-sm text-text-secondary">Live URL:</span>
-                <span className="text-sm text-accent">{project.liveUrl || "—"}</span>
+                <span className="text-sm text-accent">
+                  {project.liveUrl || "—"}
+                </span>
               </div>
             </div>
 
@@ -118,7 +122,6 @@ export default function ProjectModal({ project, onClose }) {
                   <ExternalLink size={14} /> Live
                 </a>
               )}
-
             </div>
           </div>
         </div>

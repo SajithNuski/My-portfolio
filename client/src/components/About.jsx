@@ -73,7 +73,7 @@ export default function About() {
             About <span className="text-accent">Me</span>
           </h2>
           <p className="text-text-secondary text-lg max-w-2xl mx-auto">
-            Creative Developer & Digital Experience Designer
+            <span className="text-accent">Creative Developer</span> & <span className="text-blue">Digital Experience Designer</span>
           </p>
         </motion.div>
 
@@ -158,7 +158,7 @@ export default function About() {
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-accent rounded-full"></div>
+                  <div className="w-3 h-3 bg-pink-500 rounded-full"></div>
                   <p className="text-text-primary font-semibold">
                     Fiverr Level 2 Seller
                   </p>

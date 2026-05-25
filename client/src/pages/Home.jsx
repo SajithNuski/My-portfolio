@@ -10,18 +10,21 @@ import Experience from "../components/Experience.jsx";
 import Certificates from "../components/Certificates.jsx";
 import Contact from "../components/Contact.jsx";
 import Footer from "../components/Footer.jsx";
+import { useState } from "react";
 
 export default function Home() {
+  const [showNavbar, setShowNavbar] = useState(true);
+
   return (
     <div className="relative bg-transparent text-text-primary">
       <AnimatedCodeBackground />
-      <Navbar />
+      {showNavbar ? <Navbar /> : null}
       <main className="relative z-10">
         <Welcome />
         <Hero />
         <About />
         <Skills />
-        <Projects />
+        <Projects onModalToggle={setShowNavbar} />
         <Experience />
         <Certificates />
         <Contact />

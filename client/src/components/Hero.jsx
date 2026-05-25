@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { ArrowRight, Github, Linkedin, Mail } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
@@ -9,6 +9,8 @@ import profileImg from "../assets/nuski.png";
 export default function Hero() {
   const [hero, setHero] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [glitchActive, setGlitchActive] = useState(false);
+  const glitchTimerRef = useRef(null);
 
   function renderHighlightedTitle(title) {
     if (!title || typeof title !== "string") return title;
@@ -72,6 +74,23 @@ export default function Hero() {
       });
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (glitchTimerRef.current) clearTimeout(glitchTimerRef.current);
+    };
+  }, []);
+
+  const triggerGlitch = () => {
+    if (glitchTimerRef.current) clearTimeout(glitchTimerRef.current);
+    setGlitchActive(true);
+    glitchTimerRef.current = setTimeout(() => setGlitchActive(false), 420);
+  };
+
+  const stopGlitch = () => {
+    if (glitchTimerRef.current) clearTimeout(glitchTimerRef.current);
+    setGlitchActive(false);
+  };
+
   if (loading)
     return (
       <div className="h-screen flex items-center justify-center text-text-secondary">
@@ -119,7 +138,7 @@ export default function Hero() {
                 }
                 className="px-8 py-3 bg-accent text-canvas font-bold rounded-lg hover:bg-accent-hover transition flex items-center justify-center gap-2"
               >
-                {hero.ctaPrimaryText} <ArrowRight size={18} />
+                View My Profile <ArrowRight size={18} />
               </button>
               <button className="px-8 py-3 bg-overlay/40 backdrop-blur-lg border border-white/10 text-accent font-bold rounded-lg hover:border-accent/50 transition">
                 {hero.ctaSecondaryText}
@@ -160,87 +179,26 @@ export default function Hero() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            whileHover={{ scale: 1.03 }}
             className="flex justify-center items-center group"
           >
-            <div className="relative w-full max-w-xs lg:max-w-sm aspect-square transition-transform duration-500 group-hover:-rotate-1">
-              {/* Animated Background Glow */}
-              <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-accent/20 via-blue/5 to-accent/10 blur-3xl opacity-60 -z-10"></div>
-
-              {/* Unique Green Border with Animated Corners */}
-              <div className="absolute inset-0 rounded-3xl border-2 border-accent overflow-hidden">
-                {/* Animated border glow effect */}
-                <motion.div
-                  animate={{
-                    boxShadow: [
-                      "inset 0 0 20px rgba(63, 185, 80, 0.3), 0 0 30px rgba(63, 185, 80, 0.2)",
-                      "inset 0 0 30px rgba(63, 185, 80, 0.5), 0 0 50px rgba(63, 185, 80, 0.3)",
-                      "inset 0 0 20px rgba(63, 185, 80, 0.3), 0 0 30px rgba(63, 185, 80, 0.2)",
-                    ],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                  className="absolute inset-0 rounded-3xl bg-canvas/95 backdrop-blur-xl border border-accent/30"
-                />
-              </div>
-
-              {/* Image Container */}
-              <div className="absolute inset-1 rounded-3xl overflow-hidden">
+            <div
+              className="profile-container relative w-full max-w-xs lg:max-w-sm aspect-square rounded-3xl"
+              style={{ "--glitch-active": glitchActive ? 1 : 0 }}
+              onMouseEnter={triggerGlitch}
+              onMouseLeave={stopGlitch}
+            >
+              <div className="profile-frame absolute inset-0 rounded-3xl" />
+              <div
+                className="profile-image-wrap absolute inset-1 rounded-3xl overflow-hidden"
+                style={{ "--profile-image": `url(${profileImg})` }}
+              >
+                <div className="profile-glitch-layer" aria-hidden="true" />
                 <img
                   src={profileImg}
                   alt="Mohamed Sajith Nuski"
-                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 group-hover:rotate-1"
+                  className="profile-image w-full h-full object-cover"
                 />
               </div>
-
-              {/* Corner Accent Elements */}
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                className="absolute -top-3 -right-3 w-6 h-6 border-2 border-accent rounded-lg"
-              />
-              <motion.div
-                animate={{ rotate: -360 }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                className="absolute -bottom-3 -left-3 w-6 h-6 border-2 border-blue/50 rounded-lg"
-              />
-
-              {/* Floating Geometric Elements */}
-              <motion.div
-                animate={{
-                  y: [0, -20, 0],
-                  x: [0, 10, 0],
-                }}
-                transition={{
-                  duration: 5,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                className="absolute -top-8 -left-8 w-8 h-8 bg-accent/20 rounded-lg border border-accent/50 backdrop-blur"
-              />
-              <motion.div
-                animate={{
-                  y: [0, 20, 0],
-                  x: [0, -10, 0],
-                }}
-                transition={{
-                  duration: 6,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                className="absolute -bottom-6 -right-6 w-6 h-6 bg-blue/20 rounded-full border border-blue/50 backdrop-blur"
-              />
-
-              {/* Shine Effect */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                whileHover={{ opacity: 1 }}
-                transition={{ duration: 0.35 }}
-                className="absolute inset-1 rounded-3xl bg-gradient-to-tr from-white/0 via-white/10 to-transparent pointer-events-none"
-              />
             </div>
           </motion.div>
         </div>

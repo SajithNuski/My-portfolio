@@ -18,7 +18,7 @@ function splitFeatureColumns(items) {
   return [items.slice(0, midpoint), items.slice(midpoint)];
 }
 
-export default function Projects() {
+export default function Projects({ onModalToggle }) {
   const [projects, setProjects] = useState([]);
   const [activeModal, setActiveModal] = useState(null);
   const [modalClosing, setModalClosing] = useState(false);
@@ -161,6 +161,7 @@ export default function Projects() {
     spawnParticles(event, accent);
     setModalClosing(false);
     setActiveModal(projectId);
+    onModalToggle?.(false);
   };
 
   const handleCloseModal = () => {
@@ -174,6 +175,7 @@ export default function Projects() {
     modalTimeoutRef.current = window.setTimeout(() => {
       setActiveModal(null);
       setModalClosing(false);
+      onModalToggle?.(true);
     }, MODAL_EXIT_MS);
   };
 

@@ -7,9 +7,7 @@ export default function Footer() {
         <p className="text-text-secondary mb-2">
           © 2025 Mohamed Sajith Nuski. All rights reserved.
         </p>
-        <p className="text-text-muted text-sm">
-          Designed & built with React, Tailwind, and MongoDB
-        </p>
+        
       </div>
     </footer>
   );
