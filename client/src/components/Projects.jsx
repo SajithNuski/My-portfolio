@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
 import { ExternalLink, Star, X } from "lucide-react";
 import { fetchProjects } from "../api/index.js";
-import ImageLightbox from "./ImageLightbox.jsx";
 import styles from "./Projects.module.css";
+
+const ImageLightbox = lazy(() => import("./ImageLightbox.jsx"));
 
 const accentColors = {
   green: { hex: "#4ade80", rgb: "74,222,128" },
@@ -415,15 +416,17 @@ export default function Projects({ onModalToggle }) {
         </div>
       ) : null}
 
-      <ImageLightbox
-        isOpen={Boolean(lightboxProject)}
-        onClose={() => setLightboxProject(null)}
-        image={lightboxProject?.thumbnail || ""}
-        title={lightboxProject?.title || "Project preview"}
-        issuer={lightboxProject?.category || "Project"}
-        accent={lightboxProject?.accent || "green"}
-        externalUrl={lightboxProject?.liveUrl || ""}
-      />
+      <Suspense fallback={null}>
+        <ImageLightbox
+          isOpen={Boolean(lightboxProject)}
+          onClose={() => setLightboxProject(null)}
+          image={lightboxProject?.thumbnail || ""}
+          title={lightboxProject?.title || "Project preview"}
+          issuer={lightboxProject?.category || "Project"}
+          accent={lightboxProject?.accent || "green"}
+          externalUrl={lightboxProject?.liveUrl || ""}
+        />
+      </Suspense>
     </section>
   );
 }
