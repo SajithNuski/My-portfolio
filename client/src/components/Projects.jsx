@@ -1,4 +1,11 @@
-import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  Suspense,
+  lazy,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { ExternalLink, Star, X } from "lucide-react";
 import { fetchProjects } from "../api/index.js";
 import styles from "./Projects.module.css";
@@ -32,7 +39,13 @@ export default function Projects({ onModalToggle }) {
     const loadProjects = async () => {
       try {
         const response = await fetchProjects();
-        const normalized = (response.data || []).map((item, index) => {
+        const source = Array.isArray(response.data)
+          ? response.data
+          : Array.isArray(response.data?.projects)
+            ? response.data.projects
+            : [];
+
+        const normalized = source.map((item, index) => {
           const accentKey = String(item.accent || "green")
             .trim()
             .toLowerCase();
@@ -68,12 +81,7 @@ export default function Projects({ onModalToggle }) {
             features,
             allTags,
             liveUrl: item.liveUrl || "#",
-            visible:
-              typeof item.visible === "boolean"
-                ? item.visible
-                : typeof item.featured === "boolean"
-                  ? item.featured
-                  : true,
+            visible: typeof item.visible === "boolean" ? item.visible : true,
             order: Number(item.order || index),
           };
         });

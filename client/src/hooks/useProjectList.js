@@ -30,10 +30,7 @@ function normalizeProject(project) {
 
   return {
     ...project,
-    visible:
-      typeof project.visible === "boolean"
-        ? project.visible
-        : Boolean(project.featured),
+    visible: typeof project.visible === "boolean" ? project.visible : true,
     thumbnail: project.thumbnail || project.imageUrl || "",
     shortDescription: project.shortDescription || project.description || "",
     fullDescription: project.fullDescription || project.longDescription || "",
@@ -71,7 +68,12 @@ export default function useProjectList() {
 
     try {
       const response = await fetchProjects();
-      const normalized = (response.data || []).map(normalizeProject);
+      const source = Array.isArray(response.data)
+        ? response.data
+        : Array.isArray(response.data?.projects)
+          ? response.data.projects
+          : [];
+      const normalized = source.map(normalizeProject);
       setProjects(normalized);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to load projects");
