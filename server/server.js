@@ -88,6 +88,13 @@ app.use("/api", certificateRoutes);
 app.use("/api", contactRoutes);
 app.use("/api/auth", authRoutes);
 
+app.get("/", (req, res) => {
+  res.status(200).json({
+    message: "Sajith Portfolio API is running",
+    health: "/api/health",
+  });
+});
+
 // Health check
 app.get("/api/health", (req, res) => {
   res.json({ message: "Server is running" });
