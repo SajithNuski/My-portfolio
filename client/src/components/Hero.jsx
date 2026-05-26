@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { fetchHero } from "../api/index.js";
 import FiverrCard from "./FiverrCard.jsx";
-import profileImg from "../assets/nuski.png";
+import profileImg from "../assets/nuski1.png";
 
 export default function Hero() {
   const [hero, setHero] = useState(null);
