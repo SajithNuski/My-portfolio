@@ -80,6 +80,15 @@ function isValidHttpUrl(value) {
   }
 }
 
+const fileToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+};
+
 function getOriginalSnapshot(certificate) {
   const normalized = normalizeCertificate(certificate);
   return JSON.stringify(normalized);
@@ -253,8 +262,7 @@ export default function useCertificateEditor({ initialCertificate, onSaved }) {
       let imageUrl = form.imageUrl || form.image || "";
 
       if (imageFile) {
-        const uploadRes = await uploadCertificateImage(imageFile);
-        imageUrl = uploadRes.data.imageUrl;
+        imageUrl = await fileToBase64(imageFile);
       }
 
       const { _id, id, issuer, issuerLogo, ...restForm } = form;

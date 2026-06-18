@@ -160,6 +160,15 @@ function parseEditorText(text) {
   return JSON.parse(text);
 }
 
+const fileToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+};
+
 export default function AdminSectionManager() {
   const { section } = useParams();
   const navigate = useNavigate();
@@ -491,24 +500,15 @@ export default function AdminSectionManager() {
     }
     setProjectUploading(true);
     setError("");
-    const objectUrl = URL.createObjectURL(file);
-    setProjectLocalPreview(objectUrl);
     try {
-      const res = await uploadProjectImage(file);
-      const imageUrl = res.data.imageUrl;
-      setProjectForm((prev) => ({ ...prev, imageUrl }));
-      setNotice("Image uploaded");
-      setProjectLocalPreview(null);
+      const base64Url = await fileToBase64(file);
+      setProjectForm((prev) => ({ ...prev, imageUrl: base64Url }));
+      setNotice("Image uploaded successfully");
     } catch (err) {
       console.error("Project upload failed:", err);
-      if (err.response?.status === 401) {
-        setError("Unauthorized — please log in to upload images.");
-      } else {
-        setError(err.response?.data?.message || err.message || "Upload failed");
-      }
+      setError(err.message || "Upload failed");
     } finally {
       setProjectUploading(false);
-      setTimeout(() => URL.revokeObjectURL(objectUrl), 5000);
     }
   };
 
@@ -522,25 +522,16 @@ export default function AdminSectionManager() {
 
     setCertificateUploading(true);
     setError("");
-    const objectUrl = URL.createObjectURL(file);
-    setCertificateLocalPreview(objectUrl);
 
     try {
-      const res = await uploadCertificateImage(file);
-      const imageUrl = res.data.imageUrl;
-      setCertificateForm((prev) => ({ ...prev, imageUrl }));
-      setNotice("Image uploaded");
-      setCertificateLocalPreview(null);
+      const base64Url = await fileToBase64(file);
+      setCertificateForm((prev) => ({ ...prev, imageUrl: base64Url }));
+      setNotice("Image uploaded successfully");
     } catch (err) {
       console.error("Certificate upload failed:", err);
-      if (err.response?.status === 401) {
-        setError("Unauthorized — please log in to upload images.");
-      } else {
-        setError(err.response?.data?.message || err.message || "Upload failed");
-      }
+      setError(err.message || "Upload failed");
     } finally {
       setCertificateUploading(false);
-      setTimeout(() => URL.revokeObjectURL(objectUrl), 5000);
     }
   };
 

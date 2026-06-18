@@ -68,6 +68,15 @@ function isValidUrl(value) {
   }
 }
 
+const fileToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+};
+
 export default function useProjectEditor({ initialProject, onSaved }) {
   const [form, setForm] = useState(toEditorState(initialProject));
   const [errors, setErrors] = useState({});
@@ -212,64 +221,37 @@ export default function useProjectEditor({ initialProject, onSaved }) {
     setSaving(true);
 
     try {
-      const formData = new FormData();
-      formData.append("projectNumber", form.projectNumber || "01");
-      formData.append("title", form.title.trim());
-      formData.append("category", form.category.trim());
-      formData.append(
-        "accent",
-        String(form.accent || "green")
-          .trim()
-          .toLowerCase(),
-      );
-      formData.append("status", form.status);
-      formData.append("shortDescription", form.shortDescription.trim());
-      formData.append("fullDescription", form.fullDescription.trim());
-      formData.append("liveUrl", form.liveUrl.trim());
-      formData.append("stars", String(Number(form.stars || 0)));
-      formData.append("displayOrder", String(Number(form.displayOrder || 0)));
-      formData.append("visible", String(Boolean(form.visible)));
-      formData.append("cardTags", JSON.stringify(form.cardTags));
-      formData.append("allTags", JSON.stringify(form.allTags));
-      formData.append(
-        "features",
-        JSON.stringify(
-          form.features.map((item) => item.trim()).filter(Boolean),
-        ),
-      );
-
       let thumbnailUrl = form.thumbnail;
       if (imageFile) {
         setUploadingImage(true);
-        const uploadRes = await uploadProjectImage(imageFile);
-        thumbnailUrl = uploadRes.data.imageUrl;
+        thumbnailUrl = await fileToBase64(imageFile);
       }
 
-      formData.append("thumbnail", thumbnailUrl || "");
-
       const payload = {
-        projectNumber: formData.get("projectNumber"),
-        title: formData.get("title"),
-        category: formData.get("category"),
-        accent: formData.get("accent"),
-        status: formData.get("status"),
-        shortDescription: formData.get("shortDescription"),
-        fullDescription: formData.get("fullDescription"),
-        description: formData.get("shortDescription"),
-        longDescription: formData.get("fullDescription"),
-        liveUrl: formData.get("liveUrl"),
-        stars: Number(formData.get("stars") || 0),
-        order: Number(formData.get("displayOrder") || 0),
-        displayOrder: Number(formData.get("displayOrder") || 0),
-        visible: formData.get("visible") === "true",
-        featured: formData.get("visible") === "true",
-        cardTags: JSON.parse(formData.get("cardTags") || "[]"),
-        allTags: JSON.parse(formData.get("allTags") || "[]"),
-        features: JSON.parse(formData.get("features") || "[]"),
-        techStack: JSON.parse(formData.get("allTags") || "[]"),
-        bullets: JSON.parse(formData.get("features") || "[]"),
-        thumbnail: formData.get("thumbnail"),
-        imageUrl: formData.get("thumbnail"),
+        projectNumber: form.projectNumber || "01",
+        title: form.title.trim(),
+        category: form.category.trim(),
+        accent: String(form.accent || "green")
+          .trim()
+          .toLowerCase(),
+        status: form.status,
+        shortDescription: form.shortDescription.trim(),
+        fullDescription: form.fullDescription.trim(),
+        description: form.shortDescription.trim(),
+        longDescription: form.fullDescription.trim(),
+        liveUrl: form.liveUrl.trim(),
+        stars: Number(form.stars || 0),
+        order: Number(form.displayOrder || 0),
+        displayOrder: Number(form.displayOrder || 0),
+        visible: Boolean(form.visible),
+        featured: Boolean(form.visible),
+        cardTags: form.cardTags || [],
+        allTags: form.allTags || [],
+        features: (form.features || []).map((item) => item.trim()).filter(Boolean),
+        techStack: form.allTags || [],
+        bullets: (form.features || []).map((item) => item.trim()).filter(Boolean),
+        thumbnail: thumbnailUrl || "",
+        imageUrl: thumbnailUrl || "",
       };
 
       const response = form._id
